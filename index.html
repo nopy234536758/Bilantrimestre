@@ -6,10 +6,6 @@
     <title>Conseil de Classe - Questionnaire</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            background: black;
-        }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -78,13 +74,10 @@
         const FORM_ID = '1FAIpQLSdUutK6wUEX2CuTHkbiYTO2EPSoU2jwWQkUPsfaBPzJ2th21w';
         const FORM_ACTION = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
 
-        // Structure des questions avec sections
+        // Structure des questions dans l'ordre ORIGINAL - TOUTES envoyées comme texte court
         const questions = [
             { id: 'entry.562363546', type: 'radio', question: 'Veux-tu garder ton anonymat lors du conseil de classe ?', options: ['Oui', 'Non'] },
             { id: 'entry.1154952827', type: 'text', question: 'Qui es-tu ?' },
-            
-            // Partie 1
-            { type: 'section', title: 'Partie 1 : Ambiance générale de la classe', subtitle: 'Sur une échelle de 1 à 10, comment tu évalues...' },
             { id: 'entry.971293297', type: 'scale', question: 'Que penses-tu de l\'ambiance générale de la classe ?' },
             { id: 'entry.758655926', type: 'scale', question: 'Le respect entre élèves' },
             { id: 'entry.344579238', type: 'scale', question: 'Le niveau de motivation dans la classe' },
@@ -94,9 +87,6 @@
             { id: 'entry.1789767323', type: 'scale', question: 'Le sentiment de sécurité dans la classe' },
             { id: 'entry.53674337', type: 'scale', question: 'L\'envie que tu as de venir en cours grâce à l\'ambiance' },
             { id: 'entry.1323206493', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
-            
-            // Partie 2
-            { type: 'section', title: 'Partie 2 : Travail personnel et organisation', subtitle: 'Sur une échelle de 1 à 10, comment tu évalues...' },
             { id: 'entry.71070638', type: 'scale', question: 'Ton organisation' },
             { id: 'entry.672544970', type: 'scale', question: 'Ton autonomie dans le travail' },
             { id: 'entry.910558859', type: 'scale', question: 'Ta capacité à rester concentré longtemps' },
@@ -109,9 +99,6 @@
             { id: 'entry.861083556', type: 'scale', question: 'Ton niveau de motivation générale pour les cours' },
             { id: 'entry.350870857', type: 'scale', question: 'À quel point tu as des obligations en dehors de l\'école ?', labels: ['Rien', 'Je vais exploser'] },
             { id: 'entry.1127130651', type: 'longtext', question: 'Remarques ?' },
-            
-            // Partie 3
-            { type: 'section', title: 'Partie 3 : En classe', subtitle: 'Sur une échelle de 1 à 10, comment tu évalues...' },
             { id: 'entry.1837266851', type: 'scale', question: 'Ta participation en cours', labels: ['Moi pas parler', 'Moi parler beaucoup'] },
             { id: 'entry.836699724', type: 'scale', question: 'Le rythme des cours', labels: ['Tortue', 'Flash McQueen prime'] },
             { id: 'entry.43159355', type: 'scale', question: 'La difficulté', labels: ['EZ', 'Harr sa mère'] },
@@ -120,188 +107,314 @@
             { id: 'entry.540263909', type: 'scale', question: 'Ta compréhension des cours', labels: ['Je capte que dalle', 'C bcp trop ez'] },
             { id: 'entry.420482620', type: 'scale', question: 'Le niveau de spam Pronote des profs', labels: ['Y a que dalle sur Pronote', 'C des spambot'] },
             { id: 'entry.967301965', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
-            
-            // Plus
-            { type: 'section', title: 'Plus' },
             { id: 'entry.138021690', type: 'longtext', question: 'Veux-tu faire passer un message au conseil de classe ?' },
             { id: 'entry.311128995', type: 'scale', question: 'À quel point trouves-tu ce questionnaire utile ?' },
             { id: 'entry.930153716', type: 'longtext', question: 'Remarques sur l\'utilité ?' }
         ];
 
+        // État de l'application
+        let currentState = {
+            step: 0,
+            submitted: false,
+            theme: 'hacker',
+            showThemeMenu: false,
+            formData: {}
+        };
+
+        // Initialiser les données du formulaire
+        questions.forEach(q => {
+            currentState.formData[q.id] = q.type === 'scale' ? '5' : '';
+        });
+
+        // Thèmes
         const themes = {
             hacker: {
-                bg: 'bg-black', text: 'text-green-500', border: 'border-green-500/30',
-                borderHover: 'hover:border-green-500', accentBg: 'bg-green-500',
-                accentText: 'text-green-400', secondaryBg: 'bg-green-500/10',
-                progressBg: 'bg-green-950', font: 'font-mono'
+                bg: 'bg-black',
+                text: 'text-green-500',
+                border: 'border-green-500/30',
+                borderHover: 'hover:border-green-500',
+                accentBg: 'bg-green-500',
+                accentText: 'text-green-400',
+                secondaryBg: 'bg-green-500/10',
+                progressBg: 'bg-green-950',
+                font: 'font-mono'
             },
             minimalist: {
-                bg: 'bg-gray-50', text: 'text-gray-900', border: 'border-gray-300',
-                borderHover: 'hover:border-gray-900', accentBg: 'bg-gray-900',
-                accentText: 'text-gray-700', secondaryBg: 'bg-gray-100',
-                progressBg: 'bg-gray-200', font: 'font-sans'
+                bg: 'bg-gray-50',
+                text: 'text-gray-900',
+                border: 'border-gray-300',
+                borderHover: 'hover:border-gray-900',
+                accentBg: 'bg-gray-900',
+                accentText: 'text-gray-700',
+                secondaryBg: 'bg-gray-100',
+                progressBg: 'bg-gray-200',
+                font: 'font-sans'
             },
             kawaii: {
-                bg: 'bg-pink-50', text: 'text-pink-600', border: 'border-pink-300',
-                borderHover: 'hover:border-pink-500', accentBg: 'bg-pink-500',
-                accentText: 'text-pink-500', secondaryBg: 'bg-pink-100',
-                progressBg: 'bg-pink-200', font: 'font-sans'
+                bg: 'bg-pink-50',
+                text: 'text-pink-600',
+                border: 'border-pink-300',
+                borderHover: 'hover:border-pink-500',
+                accentBg: 'bg-pink-500',
+                accentText: 'text-pink-500',
+                secondaryBg: 'bg-pink-100',
+                progressBg: 'bg-pink-200',
+                font: 'font-sans'
             }
         };
 
-        function getRandomTheme() {
-            const keys = Object.keys(themes);
-            return keys[Math.floor(Math.random() * keys.length)];
-        }
-
-        let currentState = {
-            step: 0, submitted: false, theme: getRandomTheme(),
-            showThemeMenu: false, formData: {}, skippedQuestions: new Set()
-        };
-
-        questions.forEach(q => {
-            if (q.id) currentState.formData[q.id] = '';
-        });
-
         function render() {
             const app = document.getElementById('app');
-            app.innerHTML = currentState.submitted ? renderSuccess() : renderForm();
-            if (!currentState.submitted) attachEventListeners();
+            if (currentState.submitted) {
+                app.innerHTML = renderSuccess();
+                return;
+            }
+            app.innerHTML = renderForm();
+            attachEventListeners();
         }
 
         function renderForm() {
             const t = themes[currentState.theme];
-            const q = questions[currentState.step];
-            const total = questions.filter(x => x.type !== 'section').length;
-            const current = questions.slice(0, currentState.step + 1).filter(x => x.type !== 'section').length;
-            const progress = (current / total) * 100;
-            const showSkip = currentState.step >= 2 && q.type !== 'section';
+            const currentQuestion = questions[currentState.step];
+            const progress = ((currentState.step + 1) / questions.length) * 100;
 
             return `
                 <div class="min-h-screen ${t.bg} ${t.text} flex items-center justify-center p-6 relative">
+                    <!-- Bouton de sélection de thème -->
                     <button id="theme-btn" class="fixed top-4 right-4 z-50 p-2 sm:p-3 border ${t.border} ${t.secondaryBg} ${t.borderHover} transition-all">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                         </svg>
                     </button>
 
+                    <!-- Menu des thèmes -->
                     ${currentState.showThemeMenu ? `
                         <div class="fixed top-16 right-4 z-50 border ${t.border} ${t.bg} p-4 space-y-2 shadow-xl">
-                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'hacker' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-green-900 text-green-600'}" data-theme="hacker">Hacker</button>
-                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'minimalist' ? 'border-gray-900 bg-gray-100 text-gray-900' : 'border-gray-300 text-gray-600'}" data-theme="minimalist">Minimalist</button>
-                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'kawaii' ? 'border-pink-500 bg-pink-100 text-pink-600' : 'border-pink-300 text-pink-400'}" data-theme="kawaii">Kawaii ♡</button>
+                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'hacker' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-green-900 text-green-600'}" data-theme="hacker">
+                                Hacker
+                            </button>
+                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'minimalist' ? 'border-gray-900 bg-gray-100 text-gray-900' : 'border-gray-300 text-gray-600'}" data-theme="minimalist">
+                                Minimalist
+                            </button>
+                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'kawaii' ? 'border-pink-500 bg-pink-100 text-pink-600' : 'border-pink-300 text-pink-400'}" data-theme="kawaii">
+                                Kawaii ♡
+                            </button>
                         </div>
                     ` : ''}
 
                     <div class="w-full max-w-3xl">
+                        <!-- Header -->
                         <div class="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 ${t.font} text-xs sm:text-sm">
-                            ${currentState.theme === 'hacker' ? '<svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>' : ''}
-                            <span class="opacity-60 truncate">${currentState.theme === 'hacker' ? 'conseil_de_classe.sh' : 'Conseil de classe'}</span>
-                            <span class="opacity-40 ml-auto whitespace-nowrap">q${current}/${total}</span>
+                            ${currentState.theme === 'hacker' ? `
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            ` : ''}
+                            <span class="opacity-60 truncate">
+                                ${currentState.theme === 'hacker' ? 'conseil_de_classe.sh' : 'Conseil de classe'}
+                            </span>
+                            <span class="opacity-40 ml-auto whitespace-nowrap">q${currentState.step + 1}/${questions.length}</span>
                         </div>
 
+                        <!-- Progress Bar -->
                         <div class="mb-6 sm:mb-8">
                             <div class="h-${currentState.theme === 'kawaii' ? '2' : '1'} ${t.progressBg} overflow-hidden ${currentState.theme === 'kawaii' ? 'rounded-full' : ''}">
                                 <div class="h-full ${t.accentBg} transition-all duration-700 ease-out ${currentState.theme === 'kawaii' ? 'rounded-full' : ''}" style="width: ${progress}%"></div>
                             </div>
                             <div class="flex justify-between mt-2 ${t.font} text-xs opacity-60">
                                 <span>${currentState.theme === 'hacker' ? `[${Math.round(progress)}%]` : `${Math.round(progress)}%`}</span>
-                                <span class="whitespace-nowrap">${current} ${currentState.theme === 'hacker' ? 'of' : '/'} ${total}</span>
+                                <span class="whitespace-nowrap">${currentState.step + 1} ${currentState.theme === 'hacker' ? 'of' : '/'} ${questions.length}</span>
                             </div>
                         </div>
 
+                        <!-- Carte de question -->
                         <div class="border ${t.border} ${currentState.theme === 'minimalist' ? 'bg-white' : currentState.theme === 'kawaii' ? 'bg-white' : t.bg} ${currentState.theme === 'kawaii' ? 'rounded-3xl shadow-xl' : ''}">
-                            ${currentState.theme === 'hacker' && q.type !== 'section' ? `<div class="border-b ${t.border} px-6 py-3 ${t.font} text-xs flex items-center gap-2"><span class="opacity-60">$</span><span>question_${current}.sh</span></div>` : ''}
+                            ${currentState.theme === 'hacker' ? `
+                                <div class="border-b ${t.border} px-6 py-3 ${t.font} text-xs flex items-center gap-2">
+                                    <span class="opacity-60">$</span>
+                                    <span>question_${currentState.step + 1}.sh</span>
+                                </div>
+                            ` : ''}
                             
                             <div class="p-4 sm:p-8">
                                 <div class="animate-fadeIn">
-                                    ${q.type === 'section' ? renderSection(q) : `
-                                        <div class="${t.font} mb-6">
-                                            ${currentState.theme === 'hacker' ? '<span class="text-green-500/60 text-sm">> </span>' : ''}
-                                            <span class="${getQuestionTextClass()}">${q.question}</span>
-                                        </div>
-                                        ${renderQuestionInput(q)}
-                                        ${showSkip ? `<div class="mt-6 pt-4 border-t ${t.border}"><button id="skip-btn" class="w-full px-4 py-3 text-left transition-all border ${t.border} ${t.borderHover} opacity-60 hover:opacity-100 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${currentState.skippedQuestions.has(currentState.step) ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText} opacity-100` : ''}">${currentState.theme === 'hacker' ? (currentState.skippedQuestions.has(currentState.step) ? '<span class="opacity-60">[undo]</span> ' : '<span class="opacity-60">[skip]</span> ') : ''}${currentState.skippedQuestions.has(currentState.step) ? 'Réactiver cette question' : 'Je ne souhaite pas répondre'}</button></div>` : ''}
-                                    `}
+                                    <div class="${t.font} mb-6">
+                                        ${currentState.theme === 'hacker' ? '<span class="text-green-500/60 text-sm">> </span>' : ''}
+                                        <span class="${getQuestionTextClass()}">
+                                            ${currentQuestion.question}
+                                        </span>
+                                    </div>
+                                    ${renderQuestionInput(currentQuestion)}
                                 </div>
                             </div>
 
+                            <!-- Navigation -->
                             <div class="border-t ${t.border} px-4 sm:px-8 py-4 sm:py-6 flex gap-2 sm:gap-3 ${t.font} text-sm">
-                                ${currentState.step > 0 ? `<button id="prev-btn" class="flex-1 px-3 sm:px-4 py-3 border ${t.border} ${t.borderHover} ${t.secondaryBg.replace('/10', '/5')} ${t.text} transition-all flex items-center justify-center gap-2 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'prev' : 'Précédent'}</span></button>` : '<div class="flex-1"></div>'}
+                                ${currentState.step > 0 ? `
+                                    <button id="prev-btn" class="flex-1 px-3 sm:px-4 py-3 border ${t.border} ${t.borderHover} ${t.secondaryBg.replace('/10', '/5')} ${t.text} transition-all flex items-center justify-center gap-2 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                        <span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'prev' : 'Précédent'}</span>
+                                    </button>
+                                ` : '<div class="flex-1"></div>'}
                                 
-                                ${currentState.step < questions.length - 1 ? `<button id="next-btn" class="flex-1 px-3 sm:px-4 py-3 transition-all flex items-center justify-center gap-2 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${isStepComplete() ? `border ${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText}` : `border ${t.border} opacity-30 cursor-not-allowed`}"><span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'next' : 'Suivant'}</span><span class="sm:hidden">→</span><svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>` : `<button id="submit-btn" class="flex-1 px-3 sm:px-4 py-3 transition-all flex items-center justify-center gap-2 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${isStepComplete() ? `${t.accentBg} ${currentState.theme === 'hacker' ? 'text-black' : 'text-white'} font-semibold` : `border ${t.border} opacity-30 cursor-not-allowed`}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'submit' : 'Envoyer'}</span></button>`}
+                                ${currentState.step < questions.length - 1 ? `
+                                    <button id="next-btn" class="flex-1 px-3 sm:px-4 py-3 transition-all flex items-center justify-center gap-2 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${isStepComplete() ? `border ${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText}` : `border ${t.border} opacity-30 cursor-not-allowed`}">
+                                        <span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'next' : 'Suivant'}</span>
+                                        <span class="sm:hidden">→</span>
+                                        <svg class="w-4 h-4 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                ` : `
+                                    <button id="submit-btn" class="flex-1 px-3 sm:px-4 py-3 transition-all flex items-center justify-center gap-2 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${isStepComplete() ? `${t.accentBg} ${currentState.theme === 'hacker' ? 'text-black' : 'text-white'} font-semibold` : `border ${t.border} opacity-30 cursor-not-allowed`}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'submit' : 'Envoyer'}</span>
+                                    </button>
+                                `}
                             </div>
                         </div>
 
-                        <div class="mt-6 text-center ${t.font} text-xs opacity-40">${currentState.theme === 'hacker' ? '[encrypted connection to google sheets]' : currentState.theme === 'kawaii' ? '✨ Envoyé avec amour vers Google Sheets ✨' : 'Données sécurisées'}</div>
+                        <div class="mt-6 text-center ${t.font} text-xs opacity-40">
+                            ${currentState.theme === 'hacker' ? '[encrypted connection to google sheets]' : currentState.theme === 'kawaii' ? '✨ Envoyé avec amour vers Google Sheets ✨' : 'Données sécurisées'}
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        function renderSection(s) {
+        function renderQuestionInput(question) {
+            const value = currentState.formData[question.id];
             const t = themes[currentState.theme];
-            return `<div class="text-center space-y-4"><h2 class="text-2xl sm:text-3xl font-bold ${t.accentText}">${s.title}</h2>${s.subtitle ? `<p class="text-sm sm:text-base opacity-60">${s.subtitle}</p>` : ''}</div>`;
-        }
-
-        function renderQuestionInput(q) {
-            const val = currentState.formData[q.id];
-            const t = themes[currentState.theme];
-            const skipped = currentState.skippedQuestions.has(currentState.step);
             
-            if (skipped) return `<div class="border ${t.border} ${t.secondaryBg} p-4 text-center ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''}"><span class="${t.accentText}">✓ Question sautée</span></div>`;
-            
-            if (q.type === 'radio') {
-                return `<div class="space-y-2 ${t.font}">${q.options.map((o, i) => `<button type="button" class="radio-btn w-full px-4 py-3 text-left transition-all border ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${val === o ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText}` : `${t.border} ${t.borderHover} opacity-60`}" data-value="${o}">${currentState.theme === 'hacker' ? `<span class="opacity-60">[${i + 1}]</span>` : ''} ${o}</button>`).join('')}</div>`;
-            }
-            
-            if (q.type === 'text') {
-                return `<div class="${t.font}">${currentState.theme === 'hacker' ? '<span class="opacity-60 mr-2">></span>' : ''}<input type="text" class="text-input ${currentState.theme === 'minimalist' || currentState.theme === 'kawaii' ? 'bg-gray-50' : 'bg-transparent'} border-b ${t.border} focus:${t.border.replace('/30', '')} outline-none ${t.accentText} w-full pb-2 transition-colors ${currentState.theme === 'kawaii' ? 'rounded-lg px-4 py-2' : ''}" value="${val}" placeholder="${getPlaceholder(q.type)}" autofocus></div>`;
-            }
-            
-            if (q.type === 'scale') {
-                const hasVal = val !== '';
-                const display = hasVal ? val : '5';
-                return `<div class="space-y-4 sm:space-y-6 ${t.font}">${q.labels ? `<div class="space-y-2"><div class="flex justify-between text-xs opacity-60 px-1"><span class="text-left max-w-[45%]">${q.labels[0]}</span><span class="text-right max-w-[45%]">${q.labels[1]}</span></div><input type="range" min="1" max="10" value="${display}" class="scale-slider w-full h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}"></div>` : `<div class="flex items-center gap-2 sm:gap-4"><span class="opacity-60 text-xs flex-shrink-0">1</span><input type="range" min="1" max="10" value="${display}" class="scale-slider flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}"><span class="opacity-60 text-xs flex-shrink-0">10</span></div>`}<div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}" data-value-display>${!hasVal ? `<span class="text-lg ${t.accentText} opacity-40">Déplace le curseur pour répondre</span>` : `<span class="text-3xl sm:text-4xl ${t.accentText} font-bold">${display}</span><span class="opacity-60">/10</span>`}</div>${!q.labels ? `<div class="grid grid-cols-10 gap-1 text-xs opacity-40 text-center">${[1,2,3,4,5,6,7,8,9,10].map(n => `<div>${n}</div>`).join('')}</div>` : ''}</div>`;
-            }
-            
-            if (q.type === 'longtext') {
-                return `<div class="${t.font}"><textarea class="longtext-input w-full ${currentState.theme === 'minimalist' || currentState.theme === 'kawaii' ? 'bg-gray-50' : 'bg-transparent'} border ${t.border} focus:${t.border.replace('/30', '')} outline-none ${t.accentText} p-4 transition-colors resize-none ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''}" rows="6" placeholder="${getPlaceholder(q.type)}" autofocus>${val}</textarea><div class="text-right text-xs opacity-40 mt-1"><span class="char-count">${val.length}</span> ${currentState.theme === 'hacker' ? 'chars' : 'caractères'}</div></div>`;
+            switch(question.type) {
+                case 'radio':
+                    return `
+                        <div class="space-y-2 ${t.font}">
+                            ${question.options.map((option, idx) => `
+                                <button type="button" class="radio-btn w-full px-4 py-3 text-left transition-all border ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${
+                                    value === option
+                                        ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText}`
+                                        : `${t.border} ${t.borderHover} opacity-60`
+                                }" data-value="${option}">
+                                    ${currentState.theme === 'hacker' ? `<span class="opacity-60">[${idx + 1}]</span>` : ''} ${option}
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                
+                case 'text':
+                    return `
+                        <div class="${t.font}">
+                            ${currentState.theme === 'hacker' ? '<span class="opacity-60 mr-2">></span>' : ''}
+                            <input type="text" class="text-input ${currentState.theme === 'minimalist' || currentState.theme === 'kawaii' ? 'bg-gray-50' : 'bg-transparent'} border-b ${t.border} focus:${t.border.replace('/30', '')} outline-none ${t.accentText} w-full pb-2 transition-colors ${currentState.theme === 'kawaii' ? 'rounded-lg px-4 py-2' : ''}" 
+                                   value="${value}" placeholder="${getPlaceholder(question.type)}" autofocus>
+                        </div>
+                    `;
+                
+                case 'scale':
+                    // SLIDER dans l'interface, mais valeur envoyée comme TEXTE COURT à Google Forms
+                    return `
+                        <div class="space-y-4 sm:space-y-6 ${t.font}">
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[0] : '1'}</span>
+                                <input type="range" min="1" max="10" value="${value}" class="scale-slider flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
+                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[1] : '10'}</span>
+                            </div>
+                            
+                            <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
+                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${value}</span>
+                                <span class="opacity-60">/10</span>
+                            </div>
+                            
+                            ${!question.labels ? `
+                                <div class="grid grid-cols-10 gap-1 text-xs opacity-40 text-center">
+                                    ${[1,2,3,4,5,6,7,8,9,10].map(num => `<div>${num}</div>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                
+                case 'longtext':
+                    return `
+                        <div class="${t.font}">
+                            <textarea class="longtext-input w-full ${currentState.theme === 'minimalist' || currentState.theme === 'kawaii' ? 'bg-gray-50' : 'bg-transparent'} border ${t.border} focus:${t.border.replace('/30', '')} outline-none ${t.accentText} p-4 transition-colors resize-none ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''}" 
+                                      rows="6" placeholder="${getPlaceholder(question.type)}" autofocus>${value}</textarea>
+                            <div class="text-right text-xs opacity-40 mt-1">
+                                <span class="char-count">${value.length}</span> ${currentState.theme === 'hacker' ? 'chars' : 'caractères'}
+                            </div>
+                        </div>
+                    `;
             }
         }
 
         function renderSuccess() {
             const t = themes[currentState.theme];
-            return `<div class="min-h-screen ${t.bg} flex items-center justify-center p-6"><div class="border ${t.border} ${t.bg} p-12 max-w-md w-full"><div class="mb-8 flex justify-center"><svg class="w-16 h-16 ${t.text}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="${t.font} ${t.text} space-y-2 text-center">${currentState.theme === 'hacker' ? '<p class="text-sm opacity-60">$ submit_form --status</p><p class="text-lg">> SUCCESS</p><p class="text-sm opacity-60">> Data transmitted</p>' : currentState.theme === 'minimalist' ? '<h2 class="text-2xl font-bold">Envoyé !</h2><p class="text-sm opacity-60">Merci d\'avoir répondu</p>' : '<h2 class="text-3xl font-bold">Merci ! ♡</h2><p class="text-sm">Ton formulaire a été envoyé avec succès ! ✨</p>'}</div></div></div>`;
+            return `
+                <div class="min-h-screen ${t.bg} flex items-center justify-center p-6">
+                    <div class="border ${t.border} ${t.bg} p-12 max-w-md w-full">
+                        <div class="mb-8 flex justify-center">
+                            <svg class="w-16 h-16 ${t.text}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="${t.font} ${t.text} space-y-2 text-center">
+                            ${currentState.theme === 'hacker' ? `
+                                <p class="text-sm opacity-60">$ submit_form --status</p>
+                                <p class="text-lg">> SUCCESS</p>
+                                <p class="text-sm opacity-60">> Data transmitted</p>
+                            ` : currentState.theme === 'minimalist' ? `
+                                <h2 class="text-2xl font-bold">Envoyé !</h2>
+                                <p class="text-sm opacity-60">Merci d'avoir répondu</p>
+                            ` : `
+                                <h2 class="text-3xl font-bold">Merci ! ♡</h2>
+                                <p class="text-sm">Ton formulaire a été envoyé avec succès ! ✨</p>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
+        // Fonctions utilitaires
         function getQuestionTextClass() {
+            const t = themes[currentState.theme];
             if (currentState.theme === 'kawaii') return 'text-xl sm:text-2xl font-bold';
             if (currentState.theme === 'minimalist') return 'text-lg sm:text-xl font-semibold';
-            return themes[currentState.theme].accentText;
+            return t.accentText;
         }
 
         function getPlaceholder(type) {
-            if (currentState.theme === 'hacker') return type === 'text' ? 'type_here...' : '// enter your response here...';
-            if (currentState.theme === 'kawaii') return type === 'text' ? 'Écris ici... ♡' : 'Écris tes pensées ici... ✨';
-            return 'Votre réponse';
+            if (currentState.theme === 'hacker') {
+                return type === 'text' ? 'type_here...' : '// enter your response here...';
+            } else if (currentState.theme === 'kawaii') {
+                return type === 'text' ? 'Écris ici... ♡' : 'Écris tes pensées ici... ✨';
+            } else {
+                return 'Votre réponse';
+            }
         }
 
         function isStepComplete() {
-            const q = questions[currentState.step];
-            if (q.type === 'section') return true;
-            if (currentState.skippedQuestions.has(currentState.step)) return true;
-            const val = currentState.formData[q.id];
-            if (q.type === 'text' || q.type === 'longtext') return val.trim() !== '';
-            return val !== '';
+            const question = questions[currentState.step];
+            const value = currentState.formData[question.id];
+            if (question.type === 'text' || question.type === 'longtext') {
+                return value.trim() !== '';
+            }
+            return value !== '';
         }
 
+        // Gestion des événements
         function attachEventListeners() {
+            // Bouton de thème
             document.getElementById('theme-btn')?.addEventListener('click', () => {
                 currentState.showThemeMenu = !currentState.showThemeMenu;
                 render();
             });
 
+            // Options de thème
             document.querySelectorAll('.theme-option').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     currentState.theme = e.target.dataset.theme;
@@ -310,6 +423,7 @@
                 });
             });
 
+            // Navigation
             document.getElementById('prev-btn')?.addEventListener('click', () => {
                 if (currentState.step > 0) {
                     currentState.step--;
@@ -325,29 +439,16 @@
             });
 
             document.getElementById('submit-btn')?.addEventListener('click', () => {
-                if (isStepComplete()) submitToGoogleForms();
+                if (isStepComplete()) {
+                    submitToGoogleForms();
+                }
             });
 
-            const skipBtn = document.getElementById('skip-btn');
-            if (skipBtn) {
-                skipBtn.addEventListener('click', () => {
-                    const q = questions[currentState.step];
-                    if (currentState.skippedQuestions.has(currentState.step)) {
-                        currentState.skippedQuestions.delete(currentState.step);
-                        currentState.formData[q.id] = '';
-                    } else {
-                        currentState.skippedQuestions.add(currentState.step);
-                        currentState.formData[q.id] = 'Non répondu';
-                    }
-                    render();
-                });
-            }
-
+            // Gestion des réponses
             document.querySelectorAll('.radio-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const q = questions[currentState.step];
-                    currentState.formData[q.id] = e.target.dataset.value;
-                    currentState.skippedQuestions.delete(currentState.step);
+                    const question = questions[currentState.step];
+                    currentState.formData[question.id] = e.target.dataset.value;
                     render();
                 });
             });
@@ -355,9 +456,8 @@
             const textInput = document.querySelector('.text-input');
             if (textInput) {
                 textInput.addEventListener('input', (e) => {
-                    const q = questions[currentState.step];
-                    currentState.formData[q.id] = e.target.value;
-                    currentState.skippedQuestions.delete(currentState.step);
+                    const question = questions[currentState.step];
+                    currentState.formData[question.id] = e.target.value;
                     updateNextButton();
                 });
                 textInput.focus();
@@ -366,15 +466,10 @@
             const scaleInput = document.querySelector('.scale-slider');
             if (scaleInput) {
                 scaleInput.addEventListener('input', (e) => {
-                    const q = questions[currentState.step];
-                    currentState.formData[q.id] = e.target.value;
-                    currentState.skippedQuestions.delete(currentState.step);
-                    
-                    const valueDisplay = document.querySelector('[data-value-display]');
-                    if (valueDisplay) {
-                        const t = themes[currentState.theme];
-                        valueDisplay.innerHTML = `<span class="text-3xl sm:text-4xl ${t.accentText} font-bold">${e.target.value}</span><span class="opacity-60">/10</span>`;
-                    }
+                    const question = questions[currentState.step];
+                    // Stocke la valeur numérique comme texte dans formData (comme pour "Qui es-tu ?")
+                    currentState.formData[question.id] = e.target.value;
+                    document.querySelector('.scale-value').textContent = e.target.value;
                     updateNextButton();
                 });
             }
@@ -382,11 +477,9 @@
             const longtextInput = document.querySelector('.longtext-input');
             if (longtextInput) {
                 longtextInput.addEventListener('input', (e) => {
-                    const q = questions[currentState.step];
-                    currentState.formData[q.id] = e.target.value;
-                    currentState.skippedQuestions.delete(currentState.step);
-                    const charCount = document.querySelector('.char-count');
-                    if (charCount) charCount.textContent = e.target.value.length;
+                    const question = questions[currentState.step];
+                    currentState.formData[question.id] = e.target.value;
+                    document.querySelector('.char-count').textContent = e.target.value.length;
                     updateNextButton();
                 });
                 longtextInput.focus();
@@ -397,17 +490,16 @@
             const nextBtn = document.getElementById('next-btn');
             const submitBtn = document.getElementById('submit-btn');
             const isComplete = isStepComplete();
-            const t = themes[currentState.theme];
             
             if (nextBtn) {
                 if (isComplete) {
                     nextBtn.disabled = false;
                     nextBtn.classList.remove('opacity-30', 'cursor-not-allowed');
-                    nextBtn.classList.add('border', t.border.replace('/30', ''), t.secondaryBg, t.accentText);
+                    nextBtn.classList.add('border', themes[currentState.theme].border.replace('/30', ''), themes[currentState.theme].secondaryBg, themes[currentState.theme].accentText);
                 } else {
                     nextBtn.disabled = true;
                     nextBtn.classList.add('opacity-30', 'cursor-not-allowed');
-                    nextBtn.classList.remove('border', t.border.replace('/30', ''), t.secondaryBg, t.accentText);
+                    nextBtn.classList.remove('border', themes[currentState.theme].border.replace('/30', ''), themes[currentState.theme].secondaryBg, themes[currentState.theme].accentText);
                 }
             }
             
@@ -415,17 +507,26 @@
                 if (isComplete) {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-30', 'cursor-not-allowed');
-                    submitBtn.classList.add(t.accentBg, 'font-semibold');
-                    submitBtn.classList.add(currentState.theme === 'hacker' ? 'text-black' : 'text-white');
+                    submitBtn.classList.add(themes[currentState.theme].accentBg, 'font-semibold');
+                    if (currentState.theme === 'hacker') {
+                        submitBtn.classList.add('text-black');
+                    } else {
+                        submitBtn.classList.add('text-white');
+                    }
                 } else {
                     submitBtn.disabled = true;
                     submitBtn.classList.add('opacity-30', 'cursor-not-allowed');
-                    submitBtn.classList.remove(t.accentBg, 'font-semibold');
-                    submitBtn.classList.remove(currentState.theme === 'hacker' ? 'text-black' : 'text-white');
+                    submitBtn.classList.remove(themes[currentState.theme].accentBg, 'font-semibold');
+                    if (currentState.theme === 'hacker') {
+                        submitBtn.classList.remove('text-black');
+                    } else {
+                        submitBtn.classList.remove('text-white');
+                    }
                 }
             }
         }
 
+        // Soumission vers Google Forms - TOUTES les valeurs envoyées comme TEXTE COURT
         function submitToGoogleForms() {
             const form = document.createElement('form');
             form.method = 'POST';
@@ -433,17 +534,22 @@
             form.target = '_blank';
             form.style.display = 'none';
 
+            // Ajouter tous les champs au formulaire
+            // TOUTES les valeurs sont envoyées comme TEXTE COURT à Google Forms
             Object.entries(currentState.formData).forEach(([key, value]) => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = key;
-                input.value = value;
+                input.value = value; // Toutes les valeurs sont du texte (radio, texte, sliders, longtext)
                 form.appendChild(input);
             });
 
             document.body.appendChild(form);
+            
+            // Soumettre le formulaire
             form.submit();
             
+            // Afficher le message de succès
             setTimeout(() => {
                 currentState.submitted = true;
                 render();
@@ -451,6 +557,7 @@
             }, 1000);
         }
 
+        // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
             render();
         });
