@@ -390,11 +390,11 @@
                                 </div>
                             `}
                             
-                            <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
+                            <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}" data-value-display>
                                 ${!hasValue ? `
                                     <span class="text-lg ${t.accentText} opacity-40">Déplace le curseur pour répondre</span>
                                 ` : `
-                                    <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${displayValue}</span>
+                                    <span class="text-3xl sm:text-4xl ${t.accentText} font-bold">${displayValue}</span>
                                     <span class="opacity-60">/10</span>
                                 `}
                             </div>
@@ -563,10 +563,14 @@
                     currentState.formData[question.id] = e.target.value;
                     currentState.skippedQuestions.delete(currentState.step);
                     
-                    // Mettre à jour seulement la valeur affichée sans re-render complet
-                    const scaleValue = document.querySelector('.scale-value');
-                    if (scaleValue) {
-                        scaleValue.textContent = e.target.value;
+                    // Mettre à jour l'affichage complet de la zone de valeur
+                    const valueDisplay = scaleInput.closest('.space-y-4, .space-y-6').querySelector('.border.px-4');
+                    if (valueDisplay) {
+                        const t = themes[currentState.theme];
+                        valueDisplay.innerHTML = `
+                            <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${e.target.value}</span>
+                            <span class="opacity-60">/10</span>
+                        `;
                     }
                     updateNextButton();
                 });
