@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conseil de Classe - Questionnaire</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body { margin: 0; background: #000; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // Lucide icons inline
+    const ArrowRight = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('line', {x1:5, y1:12, x2:19, y2:12}), React.createElement('polyline', {points:"12 5 19 12 12 19"}));
+    const ArrowLeft = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('line', {x1:19, y1:12, x2:5, y2:12}), React.createElement('polyline', {points:"12 19 5 12 12 5"}));
+    const CheckCircle2 = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('circle', {cx:12, cy:12, r:10}), React.createElement('path', {d:"m9 12 2 2 4-4"}));
+    const Terminal = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('polyline', {points:"4 17 10 11 4 5"}), React.createElement('line', {x1:12, y1:19, x2:20, y2:19}));
+  </script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
