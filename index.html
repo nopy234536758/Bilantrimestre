@@ -74,48 +74,41 @@
         const FORM_ID = '1FAIpQLSdUutK6wUEX2CuTHkbiYTO2EPSoU2jwWQkUPsfaBPzJ2th21w';
         const FORM_ACTION = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
 
-        // Structure des questions avec distinction Rating vs Linear Scale
+        // Structure des questions dans l'ordre ORIGINAL
         const questions = [
-            // Section 1: Questions générales
             { id: 'entry.562363546', type: 'radio', question: 'Veux-tu garder ton anonymat lors du conseil de classe ?', options: ['Oui', 'Non'] },
             { id: 'entry.1154952827', type: 'text', question: 'Qui es-tu ?' },
-            
-            // Section 2: Questions Rating (échelle numérique 1-10)
-            { id: 'entry.971293297', type: 'rating', question: 'Que penses-tu de l\'ambiance générale de la classe ?' },
-            { id: 'entry.758655926', type: 'rating', question: 'Le respect entre élèves' },
-            { id: 'entry.344579238', type: 'rating', question: 'Le niveau de motivation dans la classe' },
-            { id: 'entry.1819721634', type: 'rating', question: 'Le climat de travail dans la classe' },
-            { id: 'entry.349003755', type: 'rating', question: 'À quel point tu te sens serein dans la classe ?' },
-            { id: 'entry.1137800935', type: 'rating', question: 'Le sérieux global de la classe' },
-            { id: 'entry.1789767323', type: 'rating', question: 'Le sentiment de sécurité dans la classe' },
-            { id: 'entry.53674337', type: 'rating', question: 'L\'envie que tu as de venir en cours grâce à l\'ambiance' },
-            { id: 'entry.71070638', type: 'rating', question: 'Ton organisation' },
-            { id: 'entry.672544970', type: 'rating', question: 'Ton autonomie dans le travail' },
-            { id: 'entry.910558859', type: 'rating', question: 'Ta capacité à rester concentré longtemps' },
-            { id: 'entry.1894024659', type: 'rating', question: 'Tes méthodes de révision' },
-            { id: 'entry.108519480', type: 'rating', question: 'Ton niveau de santé lié au travail scolaire' },
-            { id: 'entry.969136413', type: 'rating', question: 'Ta confiance dans ta capacité à réussir' },
-            { id: 'entry.1923676063', type: 'rating', question: 'À quel point penses-tu que tes notes correspondent à tes efforts ?' },
-            { id: 'entry.861083556', type: 'rating', question: 'Ton niveau de motivation générale pour les cours' },
-            { id: 'entry.1132593514', type: 'rating', question: 'Sur 10 matières (environ), combien te plaisent vraiment ?' },
-            { id: 'entry.981283906', type: 'rating', question: 'La clarté des explications des enseignants' },
-            { id: 'entry.311128995', type: 'rating', question: 'À quel point trouves-tu ce questionnaire utile ?' },
-            
-            // Section 3: Questions Linear Scale (avec labels personnalisés)
-            { id: 'entry.297530821', type: 'linear', question: 'Ta gestion du stress', labels: ['Je stresse trop', 'Je suis confiant'] },
-            { id: 'entry.439679883', type: 'linear', question: 'Ta capacité à te détacher de tes devoirs', labels: ['C impossible frrr', 'Je lâche quand je veux'] },
-            { id: 'entry.350870857', type: 'linear', question: 'À quel point tu as des obligations en dehors de l\'école ?', labels: ['Rien', 'Je vais exploser'] },
-            { id: 'entry.1837266851', type: 'linear', question: 'Ta participation en cours', labels: ['Moi pas parler', 'Moi parler beaucoup'] },
-            { id: 'entry.836699724', type: 'linear', question: 'Le rythme des cours', labels: ['Tortue', 'Flash McQueen prime'] },
-            { id: 'entry.43159355', type: 'linear', question: 'La difficulté', labels: ['EZ', 'Harr sa mère'] },
-            { id: 'entry.540263909', type: 'linear', question: 'Ta compréhension des cours', labels: ['Je capte que dalle', 'C bcp trop ez'] },
-            { id: 'entry.420482620', type: 'linear', question: 'Le niveau de spam Pronote des profs', labels: ['Y a que dalle sur Pronote', 'C des spambot'] },
-            
-            // Section 4: Questions texte long
+            { id: 'entry.971293297', type: 'scale', question: 'Que penses-tu de l\'ambiance générale de la classe ?' },
+            { id: 'entry.758655926', type: 'scale', question: 'Le respect entre élèves' },
+            { id: 'entry.344579238', type: 'scale', question: 'Le niveau de motivation dans la classe' },
+            { id: 'entry.1819721634', type: 'scale', question: 'Le climat de travail dans la classe' },
+            { id: 'entry.349003755', type: 'scale', question: 'À quel point tu te sens serein dans la classe ?' },
+            { id: 'entry.1137800935', type: 'scale', question: 'Le sérieux global de la classe' },
+            { id: 'entry.1789767323', type: 'scale', question: 'Le sentiment de sécurité dans la classe' },
+            { id: 'entry.53674337', type: 'scale', question: 'L\'envie que tu as de venir en cours grâce à l\'ambiance' },
             { id: 'entry.1323206493', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
+            { id: 'entry.71070638', type: 'scale', question: 'Ton organisation' },
+            { id: 'entry.672544970', type: 'scale', question: 'Ton autonomie dans le travail' },
+            { id: 'entry.910558859', type: 'scale', question: 'Ta capacité à rester concentré longtemps' },
+            { id: 'entry.1894024659', type: 'scale', question: 'Tes méthodes de révision' },
+            { id: 'entry.108519480', type: 'scale', question: 'Ton niveau de santé lié au travail scolaire' },
+            { id: 'entry.969136413', type: 'scale', question: 'Ta confiance dans ta capacité à réussir' },
+            { id: 'entry.1923676063', type: 'scale', question: 'À quel point penses-tu que tes notes correspondent à tes efforts ?' },
+            { id: 'entry.297530821', type: 'scale', question: 'Ta gestion du stress', labels: ['Je stresse trop', 'Je suis confiant'] },
+            { id: 'entry.439679883', type: 'scale', question: 'Ta capacité à te détacher de tes devoirs', labels: ['C impossible frrr', 'Je lâche quand je veux'] },
+            { id: 'entry.861083556', type: 'scale', question: 'Ton niveau de motivation générale pour les cours' },
+            { id: 'entry.350870857', type: 'scale', question: 'À quel point tu as des obligations en dehors de l\'école ?', labels: ['Rien', 'Je vais exploser'] },
             { id: 'entry.1127130651', type: 'longtext', question: 'Remarques ?' },
+            { id: 'entry.1837266851', type: 'scale', question: 'Ta participation en cours', labels: ['Moi pas parler', 'Moi parler beaucoup'] },
+            { id: 'entry.836699724', type: 'scale', question: 'Le rythme des cours', labels: ['Tortue', 'Flash McQueen prime'] },
+            { id: 'entry.43159355', type: 'scale', question: 'La difficulté', labels: ['EZ', 'Harr sa mère'] },
+            { id: 'entry.1132593514', type: 'scale', question: 'Sur 10 matières (environ), combien te plaisent vraiment ?' },
+            { id: 'entry.981283906', type: 'scale', question: 'La clarté des explications des enseignants' },
+            { id: 'entry.540263909', type: 'scale', question: 'Ta compréhension des cours', labels: ['Je capte que dalle', 'C bcp trop ez'] },
+            { id: 'entry.420482620', type: 'scale', question: 'Le niveau de spam Pronote des profs', labels: ['Y a que dalle sur Pronote', 'C des spambot'] },
             { id: 'entry.967301965', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
             { id: 'entry.138021690', type: 'longtext', question: 'Veux-tu faire passer un message au conseil de classe ?' },
+            { id: 'entry.311128995', type: 'scale', question: 'À quel point trouves-tu ce questionnaire utile ?' },
             { id: 'entry.930153716', type: 'longtext', question: 'Remarques sur l\'utilité ?' }
         ];
 
@@ -130,7 +123,7 @@
 
         // Initialiser les données du formulaire
         questions.forEach(q => {
-            currentState.formData[q.id] = q.type === 'rating' || q.type === 'linear' ? '5' : '';
+            currentState.formData[q.id] = q.type === 'scale' ? '5' : '';
         });
 
         // Thèmes
@@ -170,7 +163,6 @@
             }
         };
 
-        // Fonctions de rendu
         function render() {
             const app = document.getElementById('app');
             if (currentState.submitted) {
@@ -323,39 +315,26 @@
                         </div>
                     `;
                 
-                case 'rating':
+                case 'scale':
+                    // SLIDER dans l'interface, mais valeur envoyée comme TEXTE à Google Forms
                     return `
                         <div class="space-y-4 sm:space-y-6 ${t.font}">
                             <div class="flex items-center gap-2 sm:gap-4">
-                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">1</span>
-                                <input type="range" min="1" max="10" value="${value}" class="rating-slider flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
-                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">10</span>
+                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[0] : '1'}</span>
+                                <input type="range" min="1" max="10" value="${value}" class="scale-slider flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
+                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[1] : '10'}</span>
                             </div>
                             
                             <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
-                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold rating-value">${value}</span>
+                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${value}</span>
                                 <span class="opacity-60">/10</span>
                             </div>
                             
-                            <div class="grid grid-cols-10 gap-1 text-xs opacity-40 text-center">
-                                ${[1,2,3,4,5,6,7,8,9,10].map(num => `<div>${num}</div>`).join('')}
-                            </div>
-                        </div>
-                    `;
-                
-                case 'linear':
-                    return `
-                        <div class="space-y-4 sm:space-y-6 ${t.font}">
-                            <div class="flex items-center gap-2 sm:gap-4">
-                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels[0]}</span>
-                                <input type="range" min="1" max="10" value="${value}" class="linear-slider flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
-                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels[1]}</span>
-                            </div>
-                            
-                            <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
-                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold linear-value">${value}</span>
-                                <span class="opacity-60">/10</span>
-                            </div>
+                            ${!question.labels ? `
+                                <div class="grid grid-cols-10 gap-1 text-xs opacity-40 text-center">
+                                    ${[1,2,3,4,5,6,7,8,9,10].map(num => `<div>${num}</div>`).join('')}
+                                </div>
+                            ` : ''}
                         </div>
                     `;
                 
@@ -484,22 +463,13 @@
                 textInput.focus();
             }
 
-            const ratingInput = document.querySelector('.rating-slider');
-            if (ratingInput) {
-                ratingInput.addEventListener('input', (e) => {
+            const scaleInput = document.querySelector('.scale-slider');
+            if (scaleInput) {
+                scaleInput.addEventListener('input', (e) => {
                     const question = questions[currentState.step];
+                    // Stocke la valeur numérique comme texte dans formData
                     currentState.formData[question.id] = e.target.value;
-                    document.querySelector('.rating-value').textContent = e.target.value;
-                    updateNextButton();
-                });
-            }
-
-            const linearInput = document.querySelector('.linear-slider');
-            if (linearInput) {
-                linearInput.addEventListener('input', (e) => {
-                    const question = questions[currentState.step];
-                    currentState.formData[question.id] = e.target.value;
-                    document.querySelector('.linear-value').textContent = e.target.value;
+                    document.querySelector('.scale-value').textContent = e.target.value;
                     updateNextButton();
                 });
             }
@@ -523,9 +493,11 @@
             
             if (nextBtn) {
                 if (isComplete) {
+                    nextBtn.disabled = false;
                     nextBtn.classList.remove('opacity-30', 'cursor-not-allowed');
                     nextBtn.classList.add('border', themes[currentState.theme].border.replace('/30', ''), themes[currentState.theme].secondaryBg, themes[currentState.theme].accentText);
                 } else {
+                    nextBtn.disabled = true;
                     nextBtn.classList.add('opacity-30', 'cursor-not-allowed');
                     nextBtn.classList.remove('border', themes[currentState.theme].border.replace('/30', ''), themes[currentState.theme].secondaryBg, themes[currentState.theme].accentText);
                 }
@@ -533,6 +505,7 @@
             
             if (submitBtn) {
                 if (isComplete) {
+                    submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-30', 'cursor-not-allowed');
                     submitBtn.classList.add(themes[currentState.theme].accentBg, 'font-semibold');
                     if (currentState.theme === 'hacker') {
@@ -541,6 +514,7 @@
                         submitBtn.classList.add('text-white');
                     }
                 } else {
+                    submitBtn.disabled = true;
                     submitBtn.classList.add('opacity-30', 'cursor-not-allowed');
                     submitBtn.classList.remove(themes[currentState.theme].accentBg, 'font-semibold');
                     if (currentState.theme === 'hacker') {
@@ -561,11 +535,12 @@
             form.style.display = 'none';
 
             // Ajouter tous les champs au formulaire
+            // Toutes les valeurs sont envoyées comme TEXTE à Google Forms
             Object.entries(currentState.formData).forEach(([key, value]) => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = key;
-                input.value = value;
+                input.value = value; // Déjà en texte (même pour les sliders)
                 form.appendChild(input);
             });
 
@@ -574,7 +549,7 @@
             // Soumettre le formulaire
             form.submit();
             
-            // Afficher le message de succès après un court délai
+            // Afficher le message de succès
             setTimeout(() => {
                 currentState.submitted = true;
                 render();
