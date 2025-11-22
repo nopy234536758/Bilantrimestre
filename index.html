@@ -78,10 +78,13 @@
         const FORM_ID = '1FAIpQLSdUutK6wUEX2CuTHkbiYTO2EPSoU2jwWQkUPsfaBPzJ2th21w';
         const FORM_ACTION = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
 
-        // Structure des questions dans l'ordre ORIGINAL - TOUTES envoyées comme texte court
+        // Structure des questions avec sections
         const questions = [
             { id: 'entry.562363546', type: 'radio', question: 'Veux-tu garder ton anonymat lors du conseil de classe ?', options: ['Oui', 'Non'] },
             { id: 'entry.1154952827', type: 'text', question: 'Qui es-tu ?' },
+            
+            // Partie 1 : Ambiance générale de la classe
+            { type: 'section', title: 'Partie 1 : Ambiance générale de la classe', subtitle: 'Sur une échelle de 1 à 10, comment tu évalues...' },
             { id: 'entry.971293297', type: 'scale', question: 'Que penses-tu de l\'ambiance générale de la classe ?' },
             { id: 'entry.758655926', type: 'scale', question: 'Le respect entre élèves' },
             { id: 'entry.344579238', type: 'scale', question: 'Le niveau de motivation dans la classe' },
@@ -91,6 +94,9 @@
             { id: 'entry.1789767323', type: 'scale', question: 'Le sentiment de sécurité dans la classe' },
             { id: 'entry.53674337', type: 'scale', question: 'L\'envie que tu as de venir en cours grâce à l\'ambiance' },
             { id: 'entry.1323206493', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
+            
+            // Partie 2 : Travail personnel et organisation
+            { type: 'section', title: 'Partie 2 : Travail personnel et organisation', subtitle: 'Sur une échelle de 1 à 10, comment tu évalues...' },
             { id: 'entry.71070638', type: 'scale', question: 'Ton organisation' },
             { id: 'entry.672544970', type: 'scale', question: 'Ton autonomie dans le travail' },
             { id: 'entry.910558859', type: 'scale', question: 'Ta capacité à rester concentré longtemps' },
@@ -103,6 +109,9 @@
             { id: 'entry.861083556', type: 'scale', question: 'Ton niveau de motivation générale pour les cours' },
             { id: 'entry.350870857', type: 'scale', question: 'À quel point tu as des obligations en dehors de l\'école ?', labels: ['Rien', 'Je vais exploser'] },
             { id: 'entry.1127130651', type: 'longtext', question: 'Remarques ?' },
+            
+            // Partie 3 : En classe
+            { type: 'section', title: 'Partie 3 : En classe', subtitle: 'Sur une échelle de 1 à 10, comment tu évalues...' },
             { id: 'entry.1837266851', type: 'scale', question: 'Ta participation en cours', labels: ['Moi pas parler', 'Moi parler beaucoup'] },
             { id: 'entry.836699724', type: 'scale', question: 'Le rythme des cours', labels: ['Tortue', 'Flash McQueen prime'] },
             { id: 'entry.43159355', type: 'scale', question: 'La difficulté', labels: ['EZ', 'Harr sa mère'] },
@@ -111,6 +120,9 @@
             { id: 'entry.540263909', type: 'scale', question: 'Ta compréhension des cours', labels: ['Je capte que dalle', 'C bcp trop ez'] },
             { id: 'entry.420482620', type: 'scale', question: 'Le niveau de spam Pronote des profs', labels: ['Y a que dalle sur Pronote', 'C des spambot'] },
             { id: 'entry.967301965', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
+            
+            // Plus
+            { type: 'section', title: 'Plus' },
             { id: 'entry.138021690', type: 'longtext', question: 'Veux-tu faire passer un message au conseil de classe ?' },
             { id: 'entry.311128995', type: 'scale', question: 'À quel point trouves-tu ce questionnaire utile ?' },
             { id: 'entry.930153716', type: 'longtext', question: 'Remarques sur l\'utilité ?' }
@@ -153,7 +165,6 @@
             }
         };
 
-        // État de l'application avec thème aléatoire au début
         let currentState = {
             step: 0,
             submitted: false,
@@ -163,7 +174,6 @@
             skippedQuestions: new Set()
         };
 
-        // Fonction pour obtenir un thème aléatoire
         function getRandomTheme() {
             const themeKeys = Object.keys(themes);
             return themeKeys[Math.floor(Math.random() * themeKeys.length)];
@@ -171,7 +181,9 @@
 
         // Initialiser les données du formulaire
         questions.forEach(q => {
-            currentState.formData[q.id] = '';
+            if (q.id) {
+                currentState.formData[q.id] = '';
+            }
         });
 
         function render() {
@@ -187,35 +199,31 @@
         function renderForm() {
             const t = themes[currentState.theme];
             const currentQuestion = questions[currentState.step];
-            const progress = ((currentState.step + 1) / questions.length) * 100;
-            const showSkipOption = currentState.step >= 2;
+            
+            // Calculer la progression en ignorant les sections
+            const totalQuestions = questions.filter(q => q.type !== 'section').length;
+            const currentQuestionIndex = questions.slice(0, currentState.step + 1).filter(q => q.type !== 'section').length;
+            const progress = (currentQuestionIndex / totalQuestions) * 100;
+            
+            const showSkipOption = currentState.step >= 2 && currentQuestion.type !== 'section';
 
             return `
                 <div class="min-h-screen ${t.bg} ${t.text} flex items-center justify-center p-6 relative">
-                    <!-- Bouton de sélection de thème -->
                     <button id="theme-btn" class="fixed top-4 right-4 z-50 p-2 sm:p-3 border ${t.border} ${t.secondaryBg} ${t.borderHover} transition-all">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                         </svg>
                     </button>
 
-                    <!-- Menu des thèmes -->
                     ${currentState.showThemeMenu ? `
                         <div class="fixed top-16 right-4 z-50 border ${t.border} ${t.bg} p-4 space-y-2 shadow-xl">
-                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'hacker' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-green-900 text-green-600'}" data-theme="hacker">
-                                Hacker
-                            </button>
-                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'minimalist' ? 'border-gray-900 bg-gray-100 text-gray-900' : 'border-gray-300 text-gray-600'}" data-theme="minimalist">
-                                Minimalist
-                            </button>
-                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'kawaii' ? 'border-pink-500 bg-pink-100 text-pink-600' : 'border-pink-300 text-pink-400'}" data-theme="kawaii">
-                                Kawaii ♡
-                            </button>
+                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'hacker' ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-green-900 text-green-600'}" data-theme="hacker">Hacker</button>
+                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'minimalist' ? 'border-gray-900 bg-gray-100 text-gray-900' : 'border-gray-300 text-gray-600'}" data-theme="minimalist">Minimalist</button>
+                            <button class="theme-option w-full px-4 py-2 text-left border ${currentState.theme === 'kawaii' ? 'border-pink-500 bg-pink-100 text-pink-600' : 'border-pink-300 text-pink-400'}" data-theme="kawaii">Kawaii ♡</button>
                         </div>
                     ` : ''}
 
                     <div class="w-full max-w-3xl">
-                        <!-- Header -->
                         <div class="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 ${t.font} text-xs sm:text-sm">
                             ${currentState.theme === 'hacker' ? `
                                 <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,52 +233,50 @@
                             <span class="opacity-60 truncate">
                                 ${currentState.theme === 'hacker' ? 'conseil_de_classe.sh' : 'Conseil de classe'}
                             </span>
-                            <span class="opacity-40 ml-auto whitespace-nowrap">q${currentState.step + 1}/${questions.length}</span>
+                            <span class="opacity-40 ml-auto whitespace-nowrap">q${currentQuestionIndex}/${totalQuestions}</span>
                         </div>
 
-                        <!-- Progress Bar -->
                         <div class="mb-6 sm:mb-8">
                             <div class="h-${currentState.theme === 'kawaii' ? '2' : '1'} ${t.progressBg} overflow-hidden ${currentState.theme === 'kawaii' ? 'rounded-full' : ''}">
                                 <div class="h-full ${t.accentBg} transition-all duration-700 ease-out ${currentState.theme === 'kawaii' ? 'rounded-full' : ''}" style="width: ${progress}%"></div>
                             </div>
                             <div class="flex justify-between mt-2 ${t.font} text-xs opacity-60">
                                 <span>${currentState.theme === 'hacker' ? `[${Math.round(progress)}%]` : `${Math.round(progress)}%`}</span>
-                                <span class="whitespace-nowrap">${currentState.step + 1} ${currentState.theme === 'hacker' ? 'of' : '/'} ${questions.length}</span>
+                                <span class="whitespace-nowrap">${currentQuestionIndex} ${currentState.theme === 'hacker' ? 'of' : '/'} ${totalQuestions}</span>
                             </div>
                         </div>
 
-                        <!-- Carte de question -->
                         <div class="border ${t.border} ${currentState.theme === 'minimalist' ? 'bg-white' : currentState.theme === 'kawaii' ? 'bg-white' : t.bg} ${currentState.theme === 'kawaii' ? 'rounded-3xl shadow-xl' : ''}">
-                            ${currentState.theme === 'hacker' ? `
+                            ${currentState.theme === 'hacker' && currentQuestion.type !== 'section' ? `
                                 <div class="border-b ${t.border} px-6 py-3 ${t.font} text-xs flex items-center gap-2">
                                     <span class="opacity-60">$</span>
-                                    <span>question_${currentState.step + 1}.sh</span>
+                                    <span>question_${currentQuestionIndex}.sh</span>
                                 </div>
                             ` : ''}
                             
                             <div class="p-4 sm:p-8">
                                 <div class="animate-fadeIn">
-                                    <div class="${t.font} mb-6">
-                                        ${currentState.theme === 'hacker' ? '<span class="text-green-500/60 text-sm">> </span>' : ''}
-                                        <span class="${getQuestionTextClass()}">
-                                            ${currentQuestion.question}
-                                        </span>
-                                    </div>
-                                    ${renderQuestionInput(currentQuestion)}
-                                    
-                                    <!-- Option "Je ne souhaite pas répondre" -->
-                                    ${showSkipOption ? `
-                                        <div class="mt-6 pt-4 border-t ${t.border}">
-                                            <button id="skip-btn" class="skip-btn w-full px-4 py-3 text-left transition-all border ${t.border} ${t.borderHover} opacity-60 hover:opacity-100 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${currentState.skippedQuestions.has(currentState.step) ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText} opacity-100` : ''}">
-                                                ${currentState.theme === 'hacker' ? (currentState.skippedQuestions.has(currentState.step) ? '<span class="opacity-60">[undo]</span> ' : '<span class="opacity-60">[skip]</span> ') : ''}
-                                                ${currentState.skippedQuestions.has(currentState.step) ? 'Réactiver cette question' : 'Je ne souhaite pas répondre'}
-                                            </button>
+                                    ${currentQuestion.type === 'section' ? renderSection(currentQuestion) : `
+                                        <div class="${t.font} mb-6">
+                                            ${currentState.theme === 'hacker' ? '<span class="text-green-500/60 text-sm">> </span>' : ''}
+                                            <span class="${getQuestionTextClass()}">
+                                                ${currentQuestion.question}
+                                            </span>
                                         </div>
-                                    ` : ''}
+                                        ${renderQuestionInput(currentQuestion)}
+                                        
+                                        ${showSkipOption ? `
+                                            <div class="mt-6 pt-4 border-t ${t.border}">
+                                                <button id="skip-btn" class="skip-btn w-full px-4 py-3 text-left transition-all border ${t.border} ${t.borderHover} opacity-60 hover:opacity-100 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${currentState.skippedQuestions.has(currentState.step) ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText} opacity-100` : ''}">
+                                                    ${currentState.theme === 'hacker' ? (currentState.skippedQuestions.has(currentState.step) ? '<span class="opacity-60">[undo]</span> ' : '<span class="opacity-60">[skip]</span> ') : ''}
+                                                    ${currentState.skippedQuestions.has(currentState.step) ? 'Réactiver cette question' : 'Je ne souhaite pas répondre'}
+                                                </button>
+                                            </div>
+                                        ` : ''}
+                                    `}
                                 </div>
                             </div>
 
-                            <!-- Navigation -->
                             <div class="border-t ${t.border} px-4 sm:px-8 py-4 sm:py-6 flex gap-2 sm:gap-3 ${t.font} text-sm">
                                 ${currentState.step > 0 ? `
                                     <button id="prev-btn" class="flex-1 px-3 sm:px-4 py-3 border ${t.border} ${t.borderHover} ${t.secondaryBg.replace('/10', '/5')} ${t.text} transition-all flex items-center justify-center gap-2 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''}">
@@ -304,6 +310,22 @@
                             ${currentState.theme === 'hacker' ? '[encrypted connection to google sheets]' : currentState.theme === 'kawaii' ? '✨ Envoyé avec amour vers Google Sheets ✨' : 'Données sécurisées'}
                         </div>
                     </div>
+                </div>
+            `;
+        }
+
+        function renderSection(section) {
+            const t = themes[currentState.theme];
+            return `
+                <div class="text-center space-y-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold ${t.accentText}">
+                        ${section.title}
+                    </h2>
+                    ${section.subtitle ? `
+                        <p class="text-sm sm:text-base opacity-60">
+                            ${section.subtitle}
+                        </p>
+                    ` : ''}
                 </div>
             `;
         }
@@ -347,10 +369,8 @@
                     `;
                 
                 case 'scale':
-                    // Si la question n'a pas encore été répondue ET n'est pas sautée, on n'affiche pas de valeur par défaut
                     const hasValue = value !== '';
                     const displayValue = hasValue ? value : '5';
-                    const showPlaceholder = !hasValue;
                     
                     return `
                         <div class="space-y-4 sm:space-y-6 ${t.font}">
@@ -371,7 +391,7 @@
                             `}
                             
                             <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
-                                ${showPlaceholder ? `
+                                ${!hasValue ? `
                                     <span class="text-lg ${t.accentText} opacity-40">Déplace le curseur pour répondre</span>
                                 ` : `
                                     <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${displayValue}</span>
@@ -447,6 +467,12 @@
 
         function isStepComplete() {
             const question = questions[currentState.step];
+            
+            // Les sections sont toujours "complètes"
+            if (question.type === 'section') {
+                return true;
+            }
+            
             const value = currentState.formData[question.id];
             
             if (currentState.skippedQuestions.has(currentState.step)) {
@@ -537,8 +563,12 @@
                     currentState.formData[question.id] = e.target.value;
                     currentState.skippedQuestions.delete(currentState.step);
                     
-                    // Mettre à jour l'affichage complet au lieu de juste la valeur
-                    render();
+                    // Mettre à jour seulement la valeur affichée sans re-render complet
+                    const scaleValue = document.querySelector('.scale-value');
+                    if (scaleValue) {
+                        scaleValue.textContent = e.target.value;
+                    }
+                    updateNextButton();
                 });
             }
 
@@ -548,7 +578,10 @@
                     const question = questions[currentState.step];
                     currentState.formData[question.id] = e.target.value;
                     currentState.skippedQuestions.delete(currentState.step);
-                    document.querySelector('.char-count').textContent = e.target.value.length;
+                    const charCount = document.querySelector('.char-count');
+                    if (charCount) {
+                        charCount.textContent = e.target.value.length;
+                    }
                     updateNextButton();
                 });
                 longtextInput.focus();
@@ -559,16 +592,17 @@
             const nextBtn = document.getElementById('next-btn');
             const submitBtn = document.getElementById('submit-btn');
             const isComplete = isStepComplete();
+            const t = themes[currentState.theme];
             
             if (nextBtn) {
                 if (isComplete) {
                     nextBtn.disabled = false;
                     nextBtn.classList.remove('opacity-30', 'cursor-not-allowed');
-                    nextBtn.classList.add('border', themes[currentState.theme].border.replace('/30', ''), themes[currentState.theme].secondaryBg, themes[currentState.theme].accentText);
+                    nextBtn.classList.add('border', t.border.replace('/30', ''), t.secondaryBg, t.accentText);
                 } else {
                     nextBtn.disabled = true;
                     nextBtn.classList.add('opacity-30', 'cursor-not-allowed');
-                    nextBtn.classList.remove('border', themes[currentState.theme].border.replace('/30', ''), themes[currentState.theme].secondaryBg, themes[currentState.theme].accentText);
+                    nextBtn.classList.remove('border', t.border.replace('/30', ''), t.secondaryBg, t.accentText);
                 }
             }
             
@@ -576,7 +610,7 @@
                 if (isComplete) {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('opacity-30', 'cursor-not-allowed');
-                    submitBtn.classList.add(themes[currentState.theme].accentBg, 'font-semibold');
+                    submitBtn.classList.add(t.accentBg, 'font-semibold');
                     if (currentState.theme === 'hacker') {
                         submitBtn.classList.add('text-black');
                     } else {
@@ -585,7 +619,7 @@
                 } else {
                     submitBtn.disabled = true;
                     submitBtn.classList.add('opacity-30', 'cursor-not-allowed');
-                    submitBtn.classList.remove(themes[currentState.theme].accentBg, 'font-semibold');
+                    submitBtn.classList.remove(t.accentBg, 'font-semibold');
                     if (currentState.theme === 'hacker') {
                         submitBtn.classList.remove('text-black');
                     } else {
