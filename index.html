@@ -1,24 +1,598 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conseil de Classe - Questionnaire</title>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>body { margin: 0; background: #000; }</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conseil de Classe - Questionnaire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        
+        .slider-hacker::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #22c55e;
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+        .slider-hacker::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #22c55e;
+            cursor: pointer;
+            border: 2px solid #000;
+            border-radius: 0;
+        }
+        
+        .slider-minimalist::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #111827;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .slider-minimalist::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #111827;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+        
+        .slider-kawaii::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #ec4899;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+        }
+        .slider-kawaii::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #ec4899;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4);
+        }
+    </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script>
-    // Lucide icons inline
-    const ArrowRight = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('line', {x1:5, y1:12, x2:19, y2:12}), React.createElement('polyline', {points:"12 5 19 12 12 19"}));
-    const ArrowLeft = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('line', {x1:19, y1:12, x2:5, y2:12}), React.createElement('polyline', {points:"12 19 5 12 12 5"}));
-    const CheckCircle2 = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('circle', {cx:12, cy:12, r:10}), React.createElement('path', {d:"m9 12 2 2 4-4"}));
-    const Terminal = ({className}) => React.createElement('svg', {className, width:24, height:24, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:2}, React.createElement('polyline', {points:"4 17 10 11 4 5"}), React.createElement('line', {x1:12, y1:19, x2:20, y2:19}));
-  </script>
-  <script type="text/babel" src="app.jsx"></script>
+    <div id="root"></div>
+
+    <script>
+        // Données du formulaire
+        const questions = [
+            { id: 'entry.562363546', type: 'radio', question: 'Veux-tu garder ton anonymat lors du conseil de classe ?', options: ['Oui', 'Non'] },
+            { id: 'entry.1154952827', type: 'text', question: 'Qui es-tu ?' },
+            { id: 'entry.971293297', type: 'rating', question: 'Que penses-tu de l\'ambiance générale de la classe ?' },
+            { id: 'entry.758655926', type: 'rating', question: 'Le respect entre élèves' },
+            { id: 'entry.344579238', type: 'rating', question: 'Le niveau de motivation dans la classe' },
+            { id: 'entry.1819721634', type: 'rating', question: 'Le climat de travail dans la classe' },
+            { id: 'entry.349003755', type: 'rating', question: 'À quel point tu te sens serein dans la classe ?' },
+            { id: 'entry.1137800935', type: 'rating', question: 'Le sérieux global de la classe' },
+            { id: 'entry.1789767323', type: 'rating', question: 'Le sentiment de sécurité dans la classe' },
+            { id: 'entry.53674337', type: 'rating', question: 'L\'envie que tu as de venir en cours grâce à l\'ambiance' },
+            { id: 'entry.1323206493', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
+            { id: 'entry.71070638', type: 'rating', question: 'Ton organisation' },
+            { id: 'entry.672544970', type: 'rating', question: 'Ton autonomie dans le travail' },
+            { id: 'entry.910558859', type: 'rating', question: 'Ta capacité à rester concentré longtemps' },
+            { id: 'entry.1894024659', type: 'rating', question: 'Tes méthodes de révision' },
+            { id: 'entry.108519480', type: 'rating', question: 'Ton niveau de santé lié au travail scolaire' },
+            { id: 'entry.969136413', type: 'rating', question: 'Ta confiance dans ta capacité à réussir' },
+            { id: 'entry.1923676063', type: 'rating', question: 'À quel point penses-tu que tes notes correspondent à tes efforts ?' },
+            { id: 'entry.297530821', type: 'rating', question: 'Ta gestion du stress', labels: ['Je stresse trop', 'Je suis confiant'] },
+            { id: 'entry.439679883', type: 'rating', question: 'Ta capacité à te détacher de tes devoirs', labels: ['C impossible frrr', 'Je lâche quand je veux'] },
+            { id: 'entry.861083556', type: 'rating', question: 'Ton niveau de motivation générale pour les cours' },
+            { id: 'entry.350870857', type: 'rating', question: 'À quel point tu as des obligations en dehors de l\'école ?', labels: ['Rien', 'Je vais exploser'] },
+            { id: 'entry.1127130651', type: 'longtext', question: 'Remarques ?' },
+            { id: 'entry.1837266851', type: 'rating', question: 'Ta participation en cours', labels: ['Moi pas parler', 'Moi parler beaucoup'] },
+            { id: 'entry.836699724', type: 'rating', question: 'Le rythme des cours', labels: ['Tortue', 'Flash McQueen prime'] },
+            { id: 'entry.43159355', type: 'rating', question: 'La difficulté', labels: ['EZ', 'Harr sa mère'] },
+            { id: 'entry.1132593514', type: 'rating', question: 'Sur 10 matières (environ), combien te plaisent vraiment ?' },
+            { id: 'entry.981283906', type: 'rating', question: 'La clarté des explications des enseignants' },
+            { id: 'entry.540263909', type: 'rating', question: 'Ta compréhension des cours', labels: ['Je capte que dalle', 'C bcp trop ez'] },
+            { id: 'entry.420482620', type: 'rating', question: 'Le niveau de spam Pronote des profs', labels: ['Y a que dalle sur Pronote', 'C des spambot'] },
+            { id: 'entry.967301965', type: 'longtext', question: 'Écris toutes les remarques qui ne peuvent pas se résumer à une note sur 10' },
+            { id: 'entry.138021690', type: 'longtext', question: 'Veux-tu faire passer un message au conseil de classe ?' },
+            { id: 'entry.311128995', type: 'rating', question: 'À quel point trouves-tu ce questionnaire utile ?' },
+            { id: 'entry.930153716', type: 'longtext', question: 'Remarques sur l\'utilité ?' }
+        ];
+
+        const FORM_ID = '1FAIpQLSdUutK6wUEX2CuTHkbiYTO2EPSoU2jwWQkUPsfaBPzJ2th21w';
+        const FORM_ACTION = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
+
+        const themes = {
+            hacker: {
+                bg: 'bg-black',
+                text: 'text-green-500',
+                border: 'border-green-500/30',
+                borderHover: 'hover:border-green-500',
+                accentBg: 'bg-green-500',
+                accentText: 'text-green-400',
+                secondaryBg: 'bg-green-500/10',
+                progressBg: 'bg-green-950',
+                font: 'font-mono'
+            },
+            minimalist: {
+                bg: 'bg-gray-50',
+                text: 'text-gray-900',
+                border: 'border-gray-300',
+                borderHover: 'hover:border-gray-900',
+                accentBg: 'bg-gray-900',
+                accentText: 'text-gray-700',
+                secondaryBg: 'bg-gray-100',
+                progressBg: 'bg-gray-200',
+                font: 'font-sans'
+            },
+            kawaii: {
+                bg: 'bg-pink-50',
+                text: 'text-pink-600',
+                border: 'border-pink-300',
+                borderHover: 'hover:border-pink-500',
+                accentBg: 'bg-pink-500',
+                accentText: 'text-pink-500',
+                secondaryBg: 'bg-pink-100',
+                progressBg: 'bg-pink-200',
+                font: 'font-sans'
+            }
+        };
+
+        let currentState = {
+            step: 0,
+            submitted: false,
+            theme: 'hacker',
+            showThemeMenu: false,
+            formData: {}
+        };
+
+        // Initialiser formData
+        questions.forEach(q => {
+            currentState.formData[q.id] = q.type === 'rating' ? '5' : '';
+        });
+
+        function render() {
+            const root = document.getElementById('root');
+            if (currentState.submitted) {
+                root.innerHTML = renderSubmitted();
+                return;
+            }
+            root.innerHTML = renderForm();
+            // Ré-attacher les événements après rendu
+            attachEventListeners();
+        }
+
+        function renderForm() {
+            const t = themes[currentState.theme];
+            const currentQuestion = questions[currentState.step];
+            const progress = ((currentState.step + 1) / questions.length) * 100;
+
+            return `
+                <div class="min-h-screen ${t.bg} ${t.text} flex items-center justify-center p-6 relative">
+                    ${renderThemeMenu(t)}
+                    <div class="w-full max-w-3xl">
+                        ${renderHeader(t, currentState.step)}
+                        ${renderProgressBar(t, progress, currentState.step)}
+                        ${renderQuestionCard(t, currentQuestion)}
+                        <div class="mt-6 text-center ${t.font} text-xs opacity-40">
+                            ${currentState.theme === 'hacker' ? '[encrypted connection to google sheets]' : currentState.theme === 'kawaii' ? '✨ Envoyé avec amour vers Google Sheets ✨' : 'Données sécurisées'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderThemeMenu(t) {
+            return `
+                <button id="theme-btn" class="fixed top-4 right-4 z-50 p-2 sm:p-3 border ${t.border} ${t.secondaryBg} ${t.borderHover} transition-all">
+                    <i data-lucide="palette" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </button>
+                ${currentState.showThemeMenu ? `
+                    <div class="fixed top-16 right-4 z-50 border ${t.border} ${t.bg} p-4 space-y-2 shadow-xl">
+                        ${['hacker', 'minimalist', 'kawaii'].map(theme => `
+                            <button class="theme-option w-full px-4 py-2 text-left border ${
+                                currentState.theme === theme 
+                                    ? getThemeBorder(theme) + ' ' + getThemeBg(theme) + ' ' + getThemeText(theme)
+                                    : getInactiveThemeBorder(theme) + ' ' + getInactiveThemeText(theme)
+                            }" data-theme="${theme}">
+                                ${theme === 'kawaii' ? 'Kawaii ♡' : theme}
+                            </button>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function renderHeader(t, step) {
+            return `
+                <div class="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 ${t.font} text-xs sm:text-sm">
+                    ${currentState.theme === 'hacker' ? '<i data-lucide="terminal" class="w-3 h-3 sm:w-4 sm:h-4"></i>' : ''}
+                    <span class="opacity-60 truncate">
+                        ${currentState.theme === 'hacker' ? 'conseil_de_classe.sh' : 'Conseil de classe'}
+                    </span>
+                    <span class="opacity-40 ml-auto whitespace-nowrap">q${step + 1}/${questions.length}</span>
+                </div>
+            `;
+        }
+
+        function renderProgressBar(t, progress, step) {
+            const height = currentState.theme === 'kawaii' ? '2' : '1';
+            const rounded = currentState.theme === 'kawaii' ? 'rounded-full' : '';
+            
+            return `
+                <div class="mb-6 sm:mb-8">
+                    <div class="h-${height} ${t.progressBg} overflow-hidden ${rounded}">
+                        <div class="h-full ${t.accentBg} transition-all duration-700 ease-out ${rounded}" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="flex justify-between mt-2 ${t.font} text-xs opacity-60">
+                        <span>${currentState.theme === 'hacker' ? `[${Math.round(progress)}%]` : `${Math.round(progress)}%`}</span>
+                        <span class="whitespace-nowrap">${step + 1} ${currentState.theme === 'hacker' ? 'of' : '/'} ${questions.length}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderQuestionCard(t, question) {
+            const bgColor = currentState.theme === 'minimalist' || currentState.theme === 'kawaii' ? 'bg-white' : t.bg;
+            const rounded = currentState.theme === 'kawaii' ? 'rounded-3xl shadow-xl' : '';
+
+            return `
+                <div class="border ${t.border} ${bgColor} ${rounded}">
+                    ${currentState.theme === 'hacker' ? `
+                        <div class="border-b ${t.border} px-6 py-3 ${t.font} text-xs flex items-center gap-2">
+                            <span class="opacity-60">$</span>
+                            <span>question_${currentState.step + 1}.sh</span>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="p-4 sm:p-8">
+                        <div class="animate-fadeIn">
+                            <div class="${t.font} mb-6">
+                                ${currentState.theme === 'hacker' ? '<span class="text-green-500/60 text-sm">> </span>' : ''}
+                                <span class="${getQuestionTextClass(t)}">${question.question}</span>
+                            </div>
+                            ${renderAnswerInput(t, question)}
+                        </div>
+                    </div>
+                    ${renderNavigation(t, question)}
+                </div>
+            `;
+        }
+
+        function renderAnswerInput(t, question) {
+            const value = currentState.formData[question.id];
+            
+            switch(question.type) {
+                case 'radio':
+                    return `
+                        <div class="space-y-2 ${t.font}">
+                            ${question.options.map((option, idx) => `
+                                <button type="button" class="answer-radio w-full px-4 py-3 text-left transition-all border ${getRadioBorderClass(t, question.id, option)} ${
+                                    currentState.theme === 'kawaii' ? 'rounded-2xl' : ''
+                                }" data-value="${option}">
+                                    ${currentState.theme === 'hacker' ? `<span class="opacity-60">[${idx + 1}]</span>` : ''} ${option}
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                
+                case 'text':
+                    return `
+                        <div class="${t.font}">
+                            ${currentState.theme === 'hacker' ? '<span class="opacity-60 mr-2">></span>' : ''}
+                            <input type="text" class="answer-text ${getInputBg(t)} border-b ${t.border} focus:${t.border.replace('/30', '')} outline-none ${t.accentText} w-full pb-2 transition-colors ${
+                                currentState.theme === 'kawaii' ? 'rounded-lg px-4 py-2' : ''
+                            }" value="${value}" placeholder="${getPlaceholder(question.type)}" autofocus>
+                        </div>
+                    `;
+                
+                case 'rating':
+                    return `
+                        <div class="space-y-4 sm:space-y-6 ${t.font}">
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[0] : '1'}</span>
+                                <input type="range" min="1" max="10" value="${value}" class="answer-rating flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
+                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[1] : '10'}</span>
+                            </div>
+                            
+                            <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
+                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold rating-value">${value}</span>
+                                <span class="opacity-60">/10</span>
+                            </div>
+                            
+                            ${!question.labels ? `
+                                <div class="grid grid-cols-10 gap-1 text-xs opacity-40 text-center">
+                                    ${[1,2,3,4,5,6,7,8,9,10].map(num => `<div>${num}</div>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                
+                case 'longtext':
+                    return `
+                        <div class="${t.font}">
+                            <textarea class="answer-longtext w-full ${getInputBg(t)} border ${t.border} focus:${t.border.replace('/30', '')} outline-none ${t.accentText} p-4 transition-colors resize-none ${
+                                currentState.theme === 'kawaii' ? 'rounded-2xl' : ''
+                            }" rows="6" placeholder="${getPlaceholder(question.type)}" autofocus>${value}</textarea>
+                            <div class="text-right text-xs opacity-40 mt-1">
+                                <span class="char-count">${value.length}</span> ${currentState.theme === 'hacker' ? 'chars' : 'caractères'}
+                            </div>
+                        </div>
+                    `;
+            }
+        }
+
+        function renderNavigation(t, question) {
+            const isComplete = isStepComplete(question);
+            
+            return `
+                <div class="border-t ${t.border} px-4 sm:px-8 py-4 sm:py-6 flex gap-2 sm:gap-3 ${t.font} text-sm">
+                    ${currentState.step > 0 ? `
+                        <button id="prev-btn" class="flex-1 px-3 sm:px-4 py-3 border ${t.border} ${t.borderHover} ${t.secondaryBg.replace('/10', '/5')} ${t.text} transition-all flex items-center justify-center gap-2 ${
+                            currentState.theme === 'kawaii' ? 'rounded-2xl' : ''
+                        }">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'prev' : 'Précédent'}</span>
+                        </button>
+                    ` : '<div class="flex-1"></div>'}
+                    
+                    ${currentState.step < questions.length - 1 ? `
+                        <button id="next-btn" ${!isComplete ? 'disabled' : ''} class="flex-1 px-3 sm:px-4 py-3 transition-all flex items-center justify-center gap-2 ${
+                            currentState.theme === 'kawaii' ? 'rounded-2xl' : ''
+                        } ${
+                            isComplete 
+                                ? `border ${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText}`
+                                : `border ${t.border} opacity-30 cursor-not-allowed`
+                        }">
+                            <span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'next' : 'Suivant'}</span>
+                            <span class="sm:hidden">→</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 hidden sm:block"></i>
+                        </button>
+                    ` : `
+                        <button id="submit-btn" ${!isComplete ? 'disabled' : ''} class="flex-1 px-3 sm:px-4 py-3 transition-all flex items-center justify-center gap-2 ${
+                            currentState.theme === 'kawaii' ? 'rounded-2xl' : ''
+                        } ${
+                            isComplete 
+                                ? `${t.accentBg} ${currentState.theme === 'hacker' ? 'text-black' : 'text-white'} font-semibold`
+                                : `border ${t.border} opacity-30 cursor-not-allowed`
+                        }">
+                            <i data-lucide="check-circle2" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">${currentState.theme === 'hacker' ? 'submit' : 'Envoyer'}</span>
+                        </button>
+                    `}
+                </div>
+            `;
+        }
+
+        function renderSubmitted() {
+            const t = themes[currentState.theme];
+            
+            return `
+                <div class="min-h-screen ${t.bg} flex items-center justify-center p-6">
+                    <div class="border ${t.border} ${t.bg} p-12 max-w-md w-full">
+                        <div class="mb-8 flex justify-center">
+                            <i data-lucide="check-circle2" class="w-16 h-16 ${t.text}"></i>
+                        </div>
+                        <div class="${t.font} ${t.text} space-y-2 text-center">
+                            ${currentState.theme === 'hacker' ? `
+                                <p class="text-sm opacity-60">$ submit_form --status</p>
+                                <p class="text-lg">> SUCCESS</p>
+                                <p class="text-sm opacity-60">> Data transmitted</p>
+                            ` : currentState.theme === 'minimalist' ? `
+                                <h2 class="text-2xl font-bold">Envoyé !</h2>
+                                <p class="text-sm opacity-60">Merci d'avoir répondu</p>
+                            ` : `
+                                <h2 class="text-3xl font-bold">Merci ! ♡</h2>
+                                <p class="text-sm">Ton formulaire a été envoyé avec succès ! ✨</p>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper functions
+        function getThemeBorder(theme) {
+            const borders = {
+                hacker: 'border-green-500',
+                minimalist: 'border-gray-900', 
+                kawaii: 'border-pink-500'
+            };
+            return borders[theme];
+        }
+
+        function getInactiveThemeBorder(theme) {
+            const borders = {
+                hacker: 'border-green-900',
+                minimalist: 'border-gray-300',
+                kawaii: 'border-pink-300'
+            };
+            return borders[theme];
+        }
+
+        function getThemeBg(theme) {
+            const bgs = {
+                hacker: 'bg-green-500/10',
+                minimalist: 'bg-gray-100',
+                kawaii: 'bg-pink-100'
+            };
+            return bgs[theme];
+        }
+
+        function getThemeText(theme) {
+            const texts = {
+                hacker: 'text-green-400',
+                minimalist: 'text-gray-900',
+                kawaii: 'text-pink-600'
+            };
+            return texts[theme];
+        }
+
+        function getInactiveThemeText(theme) {
+            const texts = {
+                hacker: 'text-green-600',
+                minimalist: 'text-gray-600',
+                kawaii: 'text-pink-400'
+            };
+            return texts[theme];
+        }
+
+        function getQuestionTextClass(t) {
+            if (currentState.theme === 'kawaii') return 'text-xl sm:text-2xl font-bold';
+            if (currentState.theme === 'minimalist') return 'text-lg sm:text-xl font-semibold';
+            return t.accentText;
+        }
+
+        function getRadioBorderClass(t, questionId, option) {
+            const isSelected = currentState.formData[questionId] === option;
+            return isSelected 
+                ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText}`
+                : `${t.border} ${t.borderHover} opacity-60`;
+        }
+
+        function getInputBg(t) {
+            return currentState.theme === 'minimalist' || currentState.theme === 'kawaii' ? 'bg-gray-50' : 'bg-transparent';
+        }
+
+        function getPlaceholder(type) {
+            const placeholders = {
+                text: currentState.theme === 'hacker' ? 'type_here...' : currentState.theme === 'kawaii' ? 'Écris ici... ♡' : 'Votre réponse',
+                longtext: currentState.theme === 'hacker' ? '// enter your response here...' : currentState.theme === 'kawaii' ? 'Écris tes pensées ici... ✨' : 'Votre réponse'
+            };
+            return placeholders[type] || 'Votre réponse';
+        }
+
+        function isStepComplete(question) {
+            const value = currentState.formData[question.id];
+            if (question.type === 'text' || question.type === 'longtext') {
+                return value.trim() !== '';
+            }
+            return value !== '';
+        }
+
+        function attachEventListeners() {
+            // Theme button
+            document.getElementById('theme-btn')?.addEventListener('click', () => {
+                currentState.showThemeMenu = !currentState.showThemeMenu;
+                render();
+            });
+
+            // Theme options
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentState.theme = e.target.dataset.theme;
+                    currentState.showThemeMenu = false;
+                    render();
+                });
+            });
+
+            // Radio buttons
+            document.querySelectorAll('.answer-radio').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const question = questions[currentState.step];
+                    currentState.formData[question.id] = e.target.dataset.value;
+                    render();
+                });
+            });
+
+            // Text input
+            const textInput = document.querySelector('.answer-text');
+            if (textInput) {
+                textInput.addEventListener('input', (e) => {
+                    const question = questions[currentState.step];
+                    currentState.formData[question.id] = e.target.value;
+                    // Re-render pour mettre à jour le bouton suivant
+                    const nextBtn = document.getElementById('next-btn');
+                    if (nextBtn) {
+                        nextBtn.disabled = !isStepComplete(questions[currentState.step]);
+                    }
+                });
+            }
+
+            // Rating slider
+            const ratingInput = document.querySelector('.answer-rating');
+            if (ratingInput) {
+                ratingInput.addEventListener('input', (e) => {
+                    const question = questions[currentState.step];
+                    currentState.formData[question.id] = e.target.value;
+                    // Mettre à jour la valeur affichée
+                    const valueDisplay = document.querySelector('.rating-value');
+                    if (valueDisplay) {
+                        valueDisplay.textContent = e.target.value;
+                    }
+                });
+            }
+
+            // Long text
+            const longTextInput = document.querySelector('.answer-longtext');
+            if (longTextInput) {
+                longTextInput.addEventListener('input', (e) => {
+                    const question = questions[currentState.step];
+                    currentState.formData[question.id] = e.target.value;
+                    // Mettre à jour le compteur
+                    const charCount = document.querySelector('.char-count');
+                    if (charCount) {
+                        charCount.textContent = e.target.value.length;
+                    }
+                    // Re-render pour mettre à jour le bouton suivant
+                    const nextBtn = document.getElementById('next-btn') || document.getElementById('submit-btn');
+                    if (nextBtn) {
+                        nextBtn.disabled = !isStepComplete(questions[currentState.step]);
+                    }
+                });
+            }
+
+            // Navigation
+            document.getElementById('prev-btn')?.addEventListener('click', () => {
+                if (currentState.step > 0) {
+                    currentState.step--;
+                    render();
+                }
+            });
+
+            document.getElementById('next-btn')?.addEventListener('click', () => {
+                if (currentState.step < questions.length - 1) {
+                    currentState.step++;
+                    render();
+                }
+            });
+
+            document.getElementById('submit-btn')?.addEventListener('click', async () => {
+                await handleSubmit();
+            });
+        }
+
+        async function handleSubmit() {
+            const params = new URLSearchParams();
+            Object.entries(currentState.formData).forEach(([key, value]) => {
+                params.set(key, value);
+            });
+
+            await fetch(FORM_ACTION, { 
+                method: 'POST', 
+                body: params, 
+                mode: 'no-cors' 
+            });
+
+            currentState.submitted = true;
+            render();
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            render();
+        });
+    </script>
 </body>
 </html>
