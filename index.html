@@ -262,8 +262,8 @@
                                     ${showSkipOption ? `
                                         <div class="mt-6 pt-4 border-t ${t.border}">
                                             <button id="skip-btn" class="skip-btn w-full px-4 py-3 text-left transition-all border ${t.border} ${t.borderHover} opacity-60 hover:opacity-100 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${currentState.skippedQuestions.has(currentState.step) ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText} opacity-100` : ''}">
-                                                ${currentState.theme === 'hacker' ? '<span class="opacity-60">[skip]</span> ' : ''}
-                                                Je ne souhaite pas répondre
+                                                ${currentState.theme === 'hacker' ? (currentState.skippedQuestions.has(currentState.step) ? '<span class="opacity-60">[undo]</span> ' : '<span class="opacity-60">[skip]</span> ') : ''}
+                                                ${currentState.skippedQuestions.has(currentState.step) ? 'Réactiver cette question' : 'Je ne souhaite pas répondre'}
                                             </button>
                                         </div>
                                     ` : ''}
@@ -347,7 +347,11 @@
                     `;
                 
                 case 'scale':
-                    const displayValue = value || '5';
+                    // Si la question n'a pas encore été répondue ET n'est pas sautée, on n'affiche pas de valeur par défaut
+                    const hasValue = value !== '';
+                    const displayValue = hasValue ? value : '5';
+                    const showPlaceholder = !hasValue;
+                    
                     return `
                         <div class="space-y-4 sm:space-y-6 ${t.font}">
                             ${question.labels ? `
@@ -367,8 +371,12 @@
                             `}
                             
                             <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
-                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${displayValue}</span>
-                                <span class="opacity-60">/10</span>
+                                ${showPlaceholder ? `
+                                    <span class="text-lg ${t.accentText} opacity-40">Déplace le curseur pour répondre</span>
+                                ` : `
+                                    <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${displayValue}</span>
+                                    <span class="opacity-60">/10</span>
+                                `}
                             </div>
                             
                             ${!question.labels ? `
@@ -528,11 +536,9 @@
                     const question = questions[currentState.step];
                     currentState.formData[question.id] = e.target.value;
                     currentState.skippedQuestions.delete(currentState.step);
-                    const scaleValue = document.querySelector('.scale-value');
-                    if (scaleValue) {
-                        scaleValue.textContent = e.target.value;
-                    }
-                    updateNextButton();
+                    
+                    // Mettre à jour l'affichage complet au lieu de juste la valeur
+                    render();
                 });
             }
 
