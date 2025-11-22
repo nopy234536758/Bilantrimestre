@@ -74,7 +74,7 @@
         const FORM_ID = '1FAIpQLSdUutK6wUEX2CuTHkbiYTO2EPSoU2jwWQkUPsfaBPzJ2th21w';
         const FORM_ACTION = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
 
-        // Structure des questions dans l'ordre ORIGINAL
+        // Structure des questions dans l'ordre ORIGINAL - TOUTES envoyées comme texte court
         const questions = [
             { id: 'entry.562363546', type: 'radio', question: 'Veux-tu garder ton anonymat lors du conseil de classe ?', options: ['Oui', 'Non'] },
             { id: 'entry.1154952827', type: 'text', question: 'Qui es-tu ?' },
@@ -316,7 +316,7 @@
                     `;
                 
                 case 'scale':
-                    // SLIDER dans l'interface, mais valeur envoyée comme TEXTE à Google Forms
+                    // SLIDER dans l'interface, mais valeur envoyée comme TEXTE COURT à Google Forms
                     return `
                         <div class="space-y-4 sm:space-y-6 ${t.font}">
                             <div class="flex items-center gap-2 sm:gap-4">
@@ -467,7 +467,7 @@
             if (scaleInput) {
                 scaleInput.addEventListener('input', (e) => {
                     const question = questions[currentState.step];
-                    // Stocke la valeur numérique comme texte dans formData
+                    // Stocke la valeur numérique comme texte dans formData (comme pour "Qui es-tu ?")
                     currentState.formData[question.id] = e.target.value;
                     document.querySelector('.scale-value').textContent = e.target.value;
                     updateNextButton();
@@ -526,7 +526,7 @@
             }
         }
 
-        // Soumission vers Google Forms
+        // Soumission vers Google Forms - TOUTES les valeurs envoyées comme TEXTE COURT
         function submitToGoogleForms() {
             const form = document.createElement('form');
             form.method = 'POST';
@@ -535,12 +535,12 @@
             form.style.display = 'none';
 
             // Ajouter tous les champs au formulaire
-            // Toutes les valeurs sont envoyées comme TEXTE à Google Forms
+            // TOUTES les valeurs sont envoyées comme TEXTE COURT à Google Forms
             Object.entries(currentState.formData).forEach(([key, value]) => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = key;
-                input.value = value; // Déjà en texte (même pour les sliders)
+                input.value = value; // Toutes les valeurs sont du texte (radio, texte, sliders, longtext)
                 form.appendChild(input);
             });
 
