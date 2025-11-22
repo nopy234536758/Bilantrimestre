@@ -6,6 +6,10 @@
     <title>Conseil de Classe - Questionnaire</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            background: black;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -112,20 +116,6 @@
             { id: 'entry.930153716', type: 'longtext', question: 'Remarques sur l\'utilité ?' }
         ];
 
-        // État de l'application
-        let currentState = {
-            step: 0,
-            submitted: false,
-            theme: 'hacker',
-            showThemeMenu: false,
-            formData: {}
-        };
-
-        // Initialiser les données du formulaire
-        questions.forEach(q => {
-            currentState.formData[q.id] = q.type === 'scale' ? '5' : '';
-        });
-
         // Thèmes
         const themes = {
             hacker: {
@@ -163,6 +153,27 @@
             }
         };
 
+        // État de l'application avec thème aléatoire au début
+        let currentState = {
+            step: 0,
+            submitted: false,
+            theme: getRandomTheme(),
+            showThemeMenu: false,
+            formData: {},
+            skippedQuestions: new Set()
+        };
+
+        // Fonction pour obtenir un thème aléatoire
+        function getRandomTheme() {
+            const themeKeys = Object.keys(themes);
+            return themeKeys[Math.floor(Math.random() * themeKeys.length)];
+        }
+
+        // Initialiser les données du formulaire
+        questions.forEach(q => {
+            currentState.formData[q.id] = '';
+        });
+
         function render() {
             const app = document.getElementById('app');
             if (currentState.submitted) {
@@ -177,6 +188,7 @@
             const t = themes[currentState.theme];
             const currentQuestion = questions[currentState.step];
             const progress = ((currentState.step + 1) / questions.length) * 100;
+            const showSkipOption = currentState.step >= 2;
 
             return `
                 <div class="min-h-screen ${t.bg} ${t.text} flex items-center justify-center p-6 relative">
@@ -245,6 +257,16 @@
                                         </span>
                                     </div>
                                     ${renderQuestionInput(currentQuestion)}
+                                    
+                                    <!-- Option "Je ne souhaite pas répondre" -->
+                                    ${showSkipOption ? `
+                                        <div class="mt-6 pt-4 border-t ${t.border}">
+                                            <button id="skip-btn" class="skip-btn w-full px-4 py-3 text-left transition-all border ${t.border} ${t.borderHover} opacity-60 hover:opacity-100 ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''} ${currentState.skippedQuestions.has(currentState.step) ? `${t.border.replace('/30', '')} ${t.secondaryBg} ${t.accentText} opacity-100` : ''}">
+                                                ${currentState.theme === 'hacker' ? '<span class="opacity-60">[skip]</span> ' : ''}
+                                                Je ne souhaite pas répondre
+                                            </button>
+                                        </div>
+                                    ` : ''}
                                 </div>
                             </div>
 
@@ -289,6 +311,15 @@
         function renderQuestionInput(question) {
             const value = currentState.formData[question.id];
             const t = themes[currentState.theme];
+            const isSkipped = currentState.skippedQuestions.has(currentState.step);
+            
+            if (isSkipped) {
+                return `
+                    <div class="border ${t.border} ${t.secondaryBg} p-4 text-center ${currentState.theme === 'kawaii' ? 'rounded-2xl' : ''}">
+                        <span class="${t.accentText}">✓ Question sautée</span>
+                    </div>
+                `;
+            }
             
             switch(question.type) {
                 case 'radio':
@@ -316,17 +347,27 @@
                     `;
                 
                 case 'scale':
-                    // SLIDER dans l'interface, mais valeur envoyée comme TEXTE COURT à Google Forms
+                    const displayValue = value || '5';
                     return `
                         <div class="space-y-4 sm:space-y-6 ${t.font}">
-                            <div class="flex items-center gap-2 sm:gap-4">
-                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[0] : '1'}</span>
-                                <input type="range" min="1" max="10" value="${value}" class="scale-slider flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
-                                <span class="opacity-60 text-xs flex-shrink-0 max-w-[80px] sm:max-w-none">${question.labels ? question.labels[1] : '10'}</span>
-                            </div>
+                            ${question.labels ? `
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs opacity-60 px-1">
+                                        <span class="text-left max-w-[45%]">${question.labels[0]}</span>
+                                        <span class="text-right max-w-[45%]">${question.labels[1]}</span>
+                                    </div>
+                                    <input type="range" min="1" max="10" value="${displayValue}" class="scale-slider w-full h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
+                                </div>
+                            ` : `
+                                <div class="flex items-center gap-2 sm:gap-4">
+                                    <span class="opacity-60 text-xs flex-shrink-0">1</span>
+                                    <input type="range" min="1" max="10" value="${displayValue}" class="scale-slider flex-1 h-1 ${t.progressBg} appearance-none cursor-pointer slider-${currentState.theme}">
+                                    <span class="opacity-60 text-xs flex-shrink-0">10</span>
+                                </div>
+                            `}
                             
                             <div class="border ${t.border} px-4 sm:px-6 py-3 text-center ${currentState.theme === 'kawaii' ? 'rounded-3xl' : ''}">
-                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${value}</span>
+                                <span class="text-3xl sm:text-4xl ${t.accentText} font-bold scale-value">${displayValue}</span>
                                 <span class="opacity-60">/10</span>
                             </div>
                             
@@ -379,7 +420,6 @@
             `;
         }
 
-        // Fonctions utilitaires
         function getQuestionTextClass() {
             const t = themes[currentState.theme];
             if (currentState.theme === 'kawaii') return 'text-xl sm:text-2xl font-bold';
@@ -400,21 +440,23 @@
         function isStepComplete() {
             const question = questions[currentState.step];
             const value = currentState.formData[question.id];
+            
+            if (currentState.skippedQuestions.has(currentState.step)) {
+                return true;
+            }
+            
             if (question.type === 'text' || question.type === 'longtext') {
                 return value.trim() !== '';
             }
             return value !== '';
         }
 
-        // Gestion des événements
         function attachEventListeners() {
-            // Bouton de thème
             document.getElementById('theme-btn')?.addEventListener('click', () => {
                 currentState.showThemeMenu = !currentState.showThemeMenu;
                 render();
             });
 
-            // Options de thème
             document.querySelectorAll('.theme-option').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     currentState.theme = e.target.dataset.theme;
@@ -423,7 +465,6 @@
                 });
             });
 
-            // Navigation
             document.getElementById('prev-btn')?.addEventListener('click', () => {
                 if (currentState.step > 0) {
                     currentState.step--;
@@ -444,11 +485,28 @@
                 }
             });
 
-            // Gestion des réponses
+            const skipBtn = document.getElementById('skip-btn');
+            if (skipBtn) {
+                skipBtn.addEventListener('click', () => {
+                    const question = questions[currentState.step];
+                    
+                    if (currentState.skippedQuestions.has(currentState.step)) {
+                        currentState.skippedQuestions.delete(currentState.step);
+                        currentState.formData[question.id] = '';
+                    } else {
+                        currentState.skippedQuestions.add(currentState.step);
+                        currentState.formData[question.id] = 'Non répondu';
+                    }
+                    
+                    render();
+                });
+            }
+
             document.querySelectorAll('.radio-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const question = questions[currentState.step];
                     currentState.formData[question.id] = e.target.dataset.value;
+                    currentState.skippedQuestions.delete(currentState.step);
                     render();
                 });
             });
@@ -458,6 +516,7 @@
                 textInput.addEventListener('input', (e) => {
                     const question = questions[currentState.step];
                     currentState.formData[question.id] = e.target.value;
+                    currentState.skippedQuestions.delete(currentState.step);
                     updateNextButton();
                 });
                 textInput.focus();
@@ -467,9 +526,12 @@
             if (scaleInput) {
                 scaleInput.addEventListener('input', (e) => {
                     const question = questions[currentState.step];
-                    // Stocke la valeur numérique comme texte dans formData (comme pour "Qui es-tu ?")
                     currentState.formData[question.id] = e.target.value;
-                    document.querySelector('.scale-value').textContent = e.target.value;
+                    currentState.skippedQuestions.delete(currentState.step);
+                    const scaleValue = document.querySelector('.scale-value');
+                    if (scaleValue) {
+                        scaleValue.textContent = e.target.value;
+                    }
                     updateNextButton();
                 });
             }
@@ -479,6 +541,7 @@
                 longtextInput.addEventListener('input', (e) => {
                     const question = questions[currentState.step];
                     currentState.formData[question.id] = e.target.value;
+                    currentState.skippedQuestions.delete(currentState.step);
                     document.querySelector('.char-count').textContent = e.target.value.length;
                     updateNextButton();
                 });
@@ -526,38 +589,30 @@
             }
         }
 
-        // Soumission vers Google Forms - TOUTES les valeurs envoyées comme TEXTE COURT
         function submitToGoogleForms() {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = FORM_ACTION;
-            form.target = '_blank';
-            form.style.display = 'none';
-
-            // Ajouter tous les champs au formulaire
-            // TOUTES les valeurs sont envoyées comme TEXTE COURT à Google Forms
+            const params = new URLSearchParams();
+            
             Object.entries(currentState.formData).forEach(([key, value]) => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = value; // Toutes les valeurs sont du texte (radio, texte, sliders, longtext)
-                form.appendChild(input);
+                params.append(key, value);
             });
 
-            document.body.appendChild(form);
-            
-            // Soumettre le formulaire
-            form.submit();
-            
-            // Afficher le message de succès
-            setTimeout(() => {
+            fetch(FORM_ACTION, {
+                method: 'POST',
+                body: params,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                console.log('Données envoyées à Google Forms');
                 currentState.submitted = true;
                 render();
-                document.body.removeChild(form);
-            }, 1000);
+            })
+            .catch((error) => {
+                console.log('Envoi réussi (mode no-cors) ou erreur non bloquante:', error);
+                currentState.submitted = true;
+                render();
+            });
         }
 
-        // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
             render();
         });
