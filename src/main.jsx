@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import SurveyForm from '../app.jsx'
+import SurveyForm from './app.jsx'  // ← CORRIGÉ
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
