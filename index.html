@@ -136,6 +136,16 @@
             border-width: 10px 10px 10px 0;
             border-color: transparent white transparent transparent;
         }
+        
+        .github-corner:hover .octo-arm {
+            animation: octocat-wave 560ms ease-in-out;
+        }
+        
+        @keyframes octocat-wave {
+            0%, 100% { transform: rotate(0); }
+            20%, 60% { transform: rotate(-25deg); }
+            40%, 80% { transform: rotate(10deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -145,7 +155,8 @@
         // Configuration et données
         const CONFIG = {
             FORM_ID: '1FAIpQLSdUutK6wUEX2CuTHkbiYTO2EPSoU2jwWQkUPsfaBPzJ2th21w',
-            get FORM_ACTION() { return `https://docs.google.com/forms/d/e/${this.FORM_ID}/formResponse`; }
+            get FORM_ACTION() { return `https://docs.google.com/forms/d/e/${this.FORM_ID}/formResponse`; },
+            GITHUB_URL: 'https://github.com/nopy234536758/Bilantrimestre'
         };
 
         const QUESTIONS = [
@@ -200,7 +211,8 @@
                 accentText: 'text-gray-700', secondaryBg: 'bg-gray-100',
                 progressBg: 'bg-gray-200', font: 'font-sans',
                 button: 'bg-gray-800 text-white hover:bg-gray-900',
-                helpBg: 'bg-blue-50', helpText: 'text-blue-800', helpBorder: 'border-blue-200'
+                helpBg: 'bg-blue-50', helpText: 'text-blue-800', helpBorder: 'border-blue-200',
+                githubBg: 'bg-gray-800', githubHover: 'hover:bg-gray-900'
             },
             kawaii: {
                 bg: 'bg-pink-50', text: 'text-pink-600', border: 'border-pink-300',
@@ -208,7 +220,8 @@
                 accentText: 'text-pink-500', secondaryBg: 'bg-pink-100',
                 progressBg: 'bg-pink-200', font: 'font-sans',
                 button: 'bg-pink-500 text-white hover:bg-pink-600',
-                helpBg: 'bg-purple-50', helpText: 'text-purple-800', helpBorder: 'border-purple-200'
+                helpBg: 'bg-purple-50', helpText: 'text-purple-800', helpBorder: 'border-purple-200',
+                githubBg: 'bg-pink-500', githubHover: 'hover:bg-pink-600'
             },
             hacker: {
                 bg: 'bg-black', text: 'text-green-500', border: 'border-green-500/30',
@@ -216,7 +229,8 @@
                 accentText: 'text-green-400', secondaryBg: 'bg-green-500/10',
                 progressBg: 'bg-green-950', font: 'font-mono',
                 button: 'bg-green-500 text-black hover:bg-green-400',
-                helpBg: 'bg-green-900', helpText: 'text-green-300', helpBorder: 'border-green-700'
+                helpBg: 'bg-green-900', helpText: 'text-green-300', helpBorder: 'border-green-700',
+                githubBg: 'bg-green-500', githubHover: 'hover:bg-green-400'
             }
         };
 
@@ -232,6 +246,12 @@
                 content: "Ici, tu peux voir où tu en es dans le questionnaire. La barre se remplit au fur et à mesure que tu avances.",
                 target: "progress-container",
                 position: "bottom"
+            },
+            {
+                title: "Code source sur GitHub 📂",
+                content: "Ce questionnaire est open source ! Tu peux voir le code, proposer des améliorations ou signaler un bug en cliquant sur ce bouton.",
+                target: "github-btn",
+                position: "left"
             },
             {
                 title: "Changer le thème 🎨",
@@ -368,6 +388,7 @@
 
                 return `
                     <div class="min-h-screen ${t.bg} ${t.text} flex items-center justify-center p-4 sm:p-6 relative transition-colors duration-300">
+                        ${this.renderGithubButton(t)}
                         ${this.renderHelpButton(t)}
                         ${this.renderThemeButton(t)}
                         ${this.state.showThemeMenu ? this.renderThemeMenu(t) : ''}
@@ -404,6 +425,15 @@
                         
                         ${this.state.helpVisible ? this.renderHelpOverlay(t) : ''}
                     </div>
+                `;
+            }
+
+            renderGithubButton(t) {
+                return `
+                    <a href="${CONFIG.GITHUB_URL}" target="_blank" id="github-btn" class="fixed top-4 left-4 z-40 p-3 ${t.githubBg} text-white rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-110 ${t.githubHover}">
+                        <i class="fab fa-github text-lg"></i>
+                        <span class="ml-2 text-sm font-medium hidden sm:inline">Code</span>
+                    </a>
                 `;
             }
 
@@ -788,7 +818,10 @@
                                 <p class="text-lg opacity-80">${msg.main}</p>
                                 <p class="text-sm opacity-60">${msg.sub}</p>
                             </div>
-                            <div class="mt-8 pt-6 border-t ${t.border}">
+                            <div class="mt-8 pt-6 border-t ${t.border} flex flex-col sm:flex-row gap-3 justify-center">
+                                <a href="${CONFIG.GITHUB_URL}" target="_blank" class="px-6 py-3 ${t.githubBg} text-white rounded-xl font-medium flex items-center justify-center transition-all hover:scale-105 ${t.githubHover}">
+                                    <i class="fab fa-github mr-2"></i>Voir le code source
+                                </a>
                                 <button id="restart-btn" class="px-6 py-3 ${t.button} rounded-xl font-medium">
                                     <i class="fas fa-redo mr-2"></i>Recommencer
                                 </button>
